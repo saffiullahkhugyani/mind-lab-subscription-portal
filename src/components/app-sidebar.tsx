@@ -1,5 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings, User2 } from "lucide-react";
-
+import { Home, RefreshCw, FileText, CloudUpload, Loader } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,37 +10,35 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+import LogoutButton from "./header-auth";
+import { Button } from "./ui/button";
 
 // Menu items.
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/dashboard",
     icon: Home,
   },
   {
-    title: "Inbox",
+    title: "Programs",
     url: "#",
-    icon: Inbox,
+    icon: FileText,
   },
   {
-    title: "Calendar",
+    title: "Status",
     url: "#",
-    icon: Calendar,
+    icon: Loader,
   },
   {
-    title: "Search",
+    title: "Subscriptions Enrollment",
     url: "#",
-    icon: Search,
+    icon: RefreshCw,
   },
   {
-    title: "Settings",
+    title: "Upload files",
     url: "#",
-    icon: Settings,
+    icon: CloudUpload,
   },
 ];
 
@@ -50,7 +47,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Subscription Portal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -68,17 +65,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <User2 /> Username
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );

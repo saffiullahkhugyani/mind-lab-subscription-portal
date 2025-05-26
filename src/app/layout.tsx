@@ -1,13 +1,7 @@
-// import DeployButton from "@/src/components/deploy-button";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import Link from "next/link";
 import "./globals.css";
 import { createClient } from "../utils/supabase/server";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import HeaderAuth from "@/components/header-auth";
-
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";

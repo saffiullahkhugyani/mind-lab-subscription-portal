@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/app/dashboard/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { readUserSession } from "@/lib/actions/actions";
 import { useUserStore } from "@/lib/store/user";

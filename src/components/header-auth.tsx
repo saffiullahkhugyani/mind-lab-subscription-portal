@@ -18,9 +18,9 @@ export default function LogoutButton() {
       <Button
         type="submit"
         disabled={isPending}
-        className="flex justify-start w-full font-bold"
+        className="flex items-center w-full  gap-3"
       >
-        <LogOut className="mr-5" />
+        <LogOut className="w-5 h-5" />
         {isPending ? "logging out..." : "Log out"}
       </Button>
     </form>

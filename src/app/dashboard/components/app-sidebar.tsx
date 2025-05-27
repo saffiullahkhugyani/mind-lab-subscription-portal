@@ -10,8 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import LogoutButton from "./header-auth";
-import { Button } from "./ui/button";
+import LogoutButton from "../../../components/header-auth";
+import { Button } from "../../../components/ui/button";
 
 // Menu items.
 const items = [

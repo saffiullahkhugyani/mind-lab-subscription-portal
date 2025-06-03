@@ -72,7 +72,7 @@ export function AllProgramsDataTable<TData, TValue>({
           </div>
         </div>
       </div>
-      <div className="shadow-md rounded-md border bg-white">
+      <div className="shadow-md rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -3,30 +3,7 @@
 import { Programs, TopPrograms } from "@/types/types";
 import { createClient } from "@/utils/supabase/server"
 
-export async function addTopProgramAction(clubId: number, programId: number) {
-    console.log("landed here: ", clubId, programId);
-
-    try {
-        const supabase = await createClient();
-        const { data, error: insertError } = await supabase
-            .from("top_programs")
-            .insert({ club_id: clubId, program_id: programId });
-
-        if (insertError) {
-            throw new Error(insertError.message);
-        }
-
-        return { success: true, data };
-    } catch (error: any) {
-        return {
-            success: false,
-            error: error.message || "An error occurred while adding the top program.",
-        }
-    }
-
-
-}
-
+// Fetch all top programs
 export async function getAllTopProgramsAction() {
     try {
         const supabase = await createClient();
@@ -58,6 +35,7 @@ export async function getAllTopProgramsAction() {
     }
 }
 
+// fetch all existing progams
 export async function getAllProgramsAction() {
     try {
         const supabase = await createClient();
@@ -91,6 +69,8 @@ export async function getAllProgramsAction() {
     }
 }
 
+
+// fetch all clubs
 export async function getAllClubs() {
     try {
         const supabase = await createClient();
@@ -116,5 +96,55 @@ export async function getAllClubs() {
             error: error.message || "An error occurred while fetching clubs.",
         }
     }
+
+}
+
+// add a program to top progams
+export async function addTopProgramAction(clubId: number, programId: number) {
+
+    try {
+        const supabase = await createClient();
+        const { data, error: insertError } = await supabase
+            .from("top_programs")
+            .insert({ club_id: clubId, program_id: programId });
+
+        if (insertError) {
+            throw new Error(insertError.message);
+        }
+
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || "An error occurred while adding the top program.",
+        }
+    }
+
+
+}
+
+// delete a program from top progams
+export async function deleteTopProgramAction(clubId: number, programId: number) {
+
+    try {
+        const supabase = await createClient();
+        const { data, error: deleteError } = await supabase
+            .from("top_programs")
+            .delete()
+            .eq("club_id", clubId)
+            .eq("program_id", programId);
+
+        if (deleteError) {
+            throw new Error(deleteError.message);
+        }
+
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || "An error occurred while deleting the top program.",
+        }
+    }
+
 
 }

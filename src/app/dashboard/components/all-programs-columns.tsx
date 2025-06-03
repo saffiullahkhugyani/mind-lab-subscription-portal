@@ -17,6 +17,7 @@ import {
   ChevronsUpDownIcon,
   MoreHorizontal,
 } from "lucide-react";
+import TableDataRowActions from "./table-data-row-actions";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -84,11 +85,11 @@ export const columns: ColumnDef<any>[] = [
     },
   },
 
-  //   {
-  //     id: "actions",
-  //     enableHiding: false,
-  //     cell: ({ row }) => {
-  //       return <DataTableRowActions row={row} />;
-  //     },
-  //   },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <TableDataRowActions row={row} />;
+    },
+  },
 ];

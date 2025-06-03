@@ -8,6 +8,12 @@ export type Programs = {
     subscriptionValue?: string | null
     totalAllocatedDonation?: number | null
     totalRemainingDonation?: number | null
+    status?: string | null
+    startDate?: string | null
+    programImage?: string | null
+    programVideo?: string | null
+    programFile?: string | null
+    description?: string | null
 }
 
 export type Clubs = {

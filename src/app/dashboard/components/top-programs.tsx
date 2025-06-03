@@ -93,7 +93,8 @@ export default function TopProgramsComponent({
 
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
 
@@ -120,13 +121,12 @@ export default function TopProgramsComponent({
     );
 
     if (isAlreadyInTop) {
-      // Optionally: show a toast, alert, or message to user
       toast({
         title: "Program already exists",
         description: "This program is already in the Top Programs list.",
         variant: "destructive",
       });
-      // alert("Program already exists in Top Programs.");
+
       setIsDialogOpen(false);
       setSelectedClub("");
       setSelectedProgram("");
@@ -134,7 +134,7 @@ export default function TopProgramsComponent({
       return;
     }
 
-    setIsLoading(true);
+    setIsAdding(true);
 
     const response = await fetch("/api/top-programs/add", {
       method: "POST",
@@ -147,7 +147,7 @@ export default function TopProgramsComponent({
       }),
     });
 
-    setIsLoading(false);
+    setIsAdding(false);
 
     if (response.ok) {
       startTransition(() => {
@@ -169,7 +169,7 @@ export default function TopProgramsComponent({
     }
   };
 
-  const handleRemoveFromTopPrograms = () => {
+  const handleRemoveFromTopPrograms = async () => {
     if (!selectedProgram) return;
 
     const programId = Number.parseInt(selectedProgram);
@@ -177,6 +177,45 @@ export default function TopProgramsComponent({
 
     if (isInTopPrograms) {
       setTopPrograms((prev) => prev.filter((p) => p.programId !== programId));
+    }
+
+    if (!isInTopPrograms) {
+      toast({
+        title: "Top Program",
+        description: " Program does not exists in top program",
+        variant: "warning",
+      });
+
+      setIsDialogOpen(false);
+      setSelectedClub("");
+      setSelectedProgram("");
+      setAvailablePrograms([]);
+      return;
+    }
+
+    setIsDeleting(true);
+
+    const response = await fetch("api/top-programs/delete", {
+      method: "DELETE",
+      headers: {},
+      body: JSON.stringify({
+        clubId: selectedClub,
+        programId: selectedProgram,
+      }),
+    });
+
+    console.log(response);
+    setIsDeleting(false);
+
+    if (response.ok) {
+      startTransition(() => {
+        router.refresh();
+      });
+      toast({
+        title: "Top Program",
+        description: "Program deleted from top programs list",
+        variant: "info",
+      });
     }
 
     setIsDialogOpen(false);
@@ -285,20 +324,22 @@ export default function TopProgramsComponent({
                 <div className="flex flex-col gap-3 pt-4">
                   <Button
                     onClick={handleAddToTopPrograms}
-                    disabled={!selectedProgram || isLoading || isPending}
+                    disabled={!selectedProgram || isDeleting || isPending}
                     className="bg-blue-900 hover:bg-blue-800 text-white"
                   >
-                    {isLoading || isPending
+                    {isAdding || isPending
                       ? "Adding..."
                       : "Add to Top Programs"}
                   </Button>
                   <Button
                     onClick={handleRemoveFromTopPrograms}
-                    disabled={!selectedProgram}
+                    disabled={!selectedProgram || isDeleting || isPending}
                     variant="destructive"
                     className="bg-red-500 hover:bg-red-600"
                   >
-                    Remove from Top Program
+                    {isDeleting || isPending
+                      ? "Deleting..."
+                      : "Delete from top programs"}
                   </Button>
                 </div>
               </div>

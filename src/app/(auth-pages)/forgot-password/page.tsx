@@ -1,11 +1,11 @@
-import { forgotPasswordAction } from "@/src/app/(auth-pages)/actions/actions";
-import { FormMessage, Message } from "@/src/components/form-message";
-import { SubmitButton } from "@/src/components/submit-button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SmtpMessage } from "../smtp-message";
-import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
+import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import { SubmitButton } from "@/components/submit-button";
+import { forgotPasswordAction } from "../actions/actions";
+import { FormMessage, Message } from "@/components/form-message";
+import { Input } from "@/components/ui/input";
 
 export default async function ForgotPassword(props: {
   searchParams: Promise<Message>;

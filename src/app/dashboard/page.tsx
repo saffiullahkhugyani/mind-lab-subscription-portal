@@ -11,6 +11,8 @@ import {
   getAllProgramsAction,
   getAllTopProgramsAction,
 } from "./actions/actions";
+import StatusAction from "./components/status-action";
+import SubscriptionAction from "./components/subscription-action";
 
 const programs = [
   {
@@ -81,6 +83,10 @@ export default async function DashboardPage() {
         {/*all programs section*/}
         <AllProgramsDataTable columns={columns} data={programs} />
         {/* <AllPrograms /> */}
+      </div>
+      <div>
+        <StatusAction />
+        <SubscriptionAction />
       </div>
     </div>
   );

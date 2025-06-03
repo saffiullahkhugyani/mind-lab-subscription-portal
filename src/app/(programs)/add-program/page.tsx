@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
 import { useToast } from "@/hooks/use-toast";
 import { Clubs } from "@/types/types";
+import { useRouter } from "next/navigation";
 
 interface FileWithPreview {
   file: File;
@@ -56,6 +57,8 @@ export default function AddProgram() {
   );
 
   const { toast } = useToast();
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -208,7 +211,7 @@ export default function AddProgram() {
 
       // Submit program data
       const response = await fetch("/api/programs/create", {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -312,7 +315,11 @@ export default function AddProgram() {
       <header className="flex items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
         <div className="py-6 px-4 sm:px-6 lg:px-8">
           <div className="cursor-pointer">
-            <ChevronLeft />
+            <ChevronLeft
+              onClick={() => {
+                router.back();
+              }}
+            />
           </div>
         </div>
         <div>

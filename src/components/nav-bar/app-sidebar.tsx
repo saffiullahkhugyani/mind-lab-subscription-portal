@@ -1,11 +1,12 @@
+import type React from "react";
 import {
   Home,
   RefreshCw,
-  FileText,
   CloudUpload,
   Loader,
   File,
   ChevronRight,
+  HomeIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,90 +28,74 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { NavMain } from "./nav-main";
 
 // Menu items.
 const items = [
   {
     title: "Home",
     url: "/dashboard",
-    icon: Home,
+    icon: HomeIcon,
+    isActive: true,
+  },
+  {
+    title: "Programs",
+    url: "#",
+    icon: File,
+    subItems: [
+      {
+        title: "Add Program",
+        url: "/add-program",
+      },
+      {
+        title: "Modify Program",
+        url: "/modify-program",
+      },
+      {
+        title: "Delete Program",
+        url: "/delete-progam",
+      },
+    ],
   },
   {
     title: "Status",
-    url: "#",
-    icon: Loader,
-  },
-  {
-    title: "Subscriptions Enrollment",
-    url: "#",
+    url: "/status",
     icon: RefreshCw,
   },
   {
-    title: "Upload files",
+    title: "Program Subscription",
+    url: "/program-subscription",
+    icon: Loader,
+    items: [],
+  },
+  {
+    title: "Subscription Enrollment",
     url: "#",
-    icon: CloudUpload,
+    icon: Loader,
+    items: [],
+  },
+];
+
+const programItems = [
+  {
+    title: "Add Program",
+    url: "/add-program",
+  },
+  {
+    title: "Delete Program",
+    url: "/delete-program",
+  },
+  {
+    title: "Modify Program",
+    url: "/modify-program",
   },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Subscription Portal</SidebarGroupLabel>
-          <SidebarGroupContent>
-            {/*Sidebar menu item for progams*/}
-            <SidebarMenu>
-              <Collapsible asChild>
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <File />
-                      <span>Program</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <a href="/add-program">
-                            <span>Add Program</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton asChild>
-                          <a href="/delete-program">
-                            <span>Delete Program</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton asChild>
-                          <a href="modify-program">
-                            <span>Modify Program</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            </SidebarMenu>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="data-[slot=sidebar-menu-button]:!p-1.5"
-                  >
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={items} />
       </SidebarContent>
       <SidebarFooter>
         <LogoutButton />

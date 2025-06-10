@@ -57,7 +57,7 @@ export default function Status() {
       try {
         const res = await fetch("/api/clubs/get-clubs");
         const json = await res.json();
-        if (json.success) setClubs(json.result.data);
+        if (json.success) setClubs(json.data);
       } catch (err) {
         console.error("Error fetching clubs:", err);
       }
@@ -105,7 +105,7 @@ export default function Status() {
       if (result.success) {
         toast({
           title: "Success",
-          description: "Successfully update program status. Please try again.",
+          description: "Successfully updated program status",
           variant: "success",
         });
 

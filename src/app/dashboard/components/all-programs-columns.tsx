@@ -24,10 +24,12 @@ import TableDataRowActions from "./table-data-row-actions";
 
 export const columns: ColumnDef<any>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "programEnglishName",
     header: () => <div className="tet-right">Name</div>,
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("name")}</div>;
+      return (
+        <div className="font-medium">{row.getValue("programEnglishName")}</div>
+      );
     },
   },
   {
@@ -43,9 +45,18 @@ export const columns: ColumnDef<any>[] = [
       </Button>
     ),
     cell: ({ row }) => {
+      const status = row.getValue("status");
       return (
         <div>
-          <Badge className=" bg-green-100 text-green-800">
+          <Badge
+            className={
+              status === "Draft"
+                ? "bg-yellow-100 text-yellow-800"
+                : status === "Deactive"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-green-100 text-green-800"
+            }
+          >
             {row.getValue("status")}
           </Badge>
         </div>
@@ -53,7 +64,7 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
-    accessorKey: "subType",
+    accessorKey: "subscriptionType",
     header: ({ column }) => (
       <Button
         variant={"ghost"}
@@ -65,7 +76,7 @@ export const columns: ColumnDef<any>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue("subType")}</div>;
+      return <div>{row.getValue("subscriptionType")}</div>;
     },
   },
   {

@@ -8,7 +8,7 @@ export default function SubscriptionAction() {
       </h2>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col text-center items-center">
-          <a href="/status">
+          <a href="/program-subscription">
             <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-2 hover:bg-gray-200 cursor-pointer">
               <Plus className="w-6 h-6 text-gray-600" />
             </div>
@@ -19,7 +19,7 @@ export default function SubscriptionAction() {
           </div>
         </div>
         <div className="flex flex-col text-center items-center">
-          <a href="/status">
+          <a href="/program-subscription">
             <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-2 hover:bg-gray-200 cursor-pointer">
               <Edit className="w-6 h-6 text-gray-600" />
             </div>

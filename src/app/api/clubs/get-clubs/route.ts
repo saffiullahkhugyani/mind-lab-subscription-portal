@@ -9,13 +9,15 @@ export async function GET() {
         data: { user },
     } = await supabase.auth.getUser();
 
+    console.log(user);
+
     if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
         const result = await getAllClubs();
-        return NextResponse.json({ success: true, result });
+        return NextResponse.json({ success: true, data: result.data });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch clubs" }, { status: 500 });
     }

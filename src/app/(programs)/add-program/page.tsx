@@ -287,8 +287,8 @@ export default function AddProgram() {
         if (response.ok) {
           const json = await response.json();
           if (json.success) {
-            setClubs(json.result.data);
-            console.log(json.result.data);
+            setClubs(json.data);
+            console.log(json.data);
           }
         } else {
           console.error("Failed to fetch clubs");

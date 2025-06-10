@@ -63,10 +63,14 @@ export function AllProgramsDataTable<TData, TValue>({
             <Input
               placeholder="Search by program..."
               value={
-                (table.getColumn("name")?.getFilterValue() as string) ?? ""
+                (table
+                  .getColumn("programEnglishName")
+                  ?.getFilterValue() as string) ?? ""
               }
               onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
+                table
+                  .getColumn("programName")
+                  ?.setFilterValue(event.target.value)
               }
             />
           </div>

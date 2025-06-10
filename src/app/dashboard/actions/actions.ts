@@ -1,5 +1,6 @@
 "use server"
 
+import { ProgramSubscriptionModel } from "@/types/custom-types";
 import { Programs, TopPrograms } from "@/types/types";
 import { createClient } from "@/utils/supabase/server"
 
@@ -58,6 +59,8 @@ export async function getAllProgramsAction() {
             clubName: item.clubs?.club_name ?? null,
             totalAllocatedDonation: item.total_allocated_donation,
             totalRemainingDonation: item.total_remaining_donation,
+            status: item.status,
+            startDate: item.start_date,
         }));
 
         return { success: true, data: programs || [] };
@@ -147,4 +150,40 @@ export async function deleteTopProgramAction(clubId: number, programId: number) 
     }
 
 
+}
+
+export async function getAllProgramSubscriptions() {
+    try {
+        const supabase = await createClient();
+        const { data, error: getError } = await supabase
+            .from('program_subscription')
+            .select("*, programs!inner(*, clubs!inner(*))");
+
+        let mappedData: ProgramSubscriptionModel[] = []
+
+        if (getError) throw new Error(getError.message);
+
+        data.map((item) => mappedData.push({
+            subcriptionId: item.id,
+            clubId: item.club_id,
+            programId: item.program_id,
+            clubName: item.programs.clubs.club_name,
+            programName: item.programs.program_english_name,
+            programStatus: item.programs.status,
+            planOneMonth: Number(item.plan_1_month),
+            planThreeMonth: Number(item.plan_3_month),
+            planTweleveMonth: Number(item.plan_12_month),
+            effectiveFrom: item.effective_from,
+            effectiveTo: item.effective_to,
+            subscriptionType: item.subscription_type,
+            startDate: item.programs.start_date,
+        }))
+
+        return { success: true, data: mappedData };
+
+
+    } catch (error: any) {
+        console.log(error);
+        return { success: false, error: error };
+    }
 }

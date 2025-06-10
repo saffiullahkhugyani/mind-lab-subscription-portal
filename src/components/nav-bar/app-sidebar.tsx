@@ -15,6 +15,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -94,6 +95,9 @@ const programItems = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
+      {/* <SidebarHeader>
+        <div>show header</div>
+      </SidebarHeader> */}
       <SidebarContent>
         <NavMain items={items} />
       </SidebarContent>

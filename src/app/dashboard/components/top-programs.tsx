@@ -124,7 +124,7 @@ export default function TopProgramsComponent({
       toast({
         title: "Program already exists",
         description: "This program is already in the Top Programs list.",
-        variant: "destructive",
+        variant: "success",
       });
 
       setIsDialogOpen(false);
@@ -214,7 +214,7 @@ export default function TopProgramsComponent({
       toast({
         title: "Top Program",
         description: "Program deleted from top programs list",
-        variant: "info",
+        variant: "success",
       });
     }
 
@@ -324,7 +324,9 @@ export default function TopProgramsComponent({
                 <div className="flex flex-col gap-3 pt-4">
                   <Button
                     onClick={handleAddToTopPrograms}
-                    disabled={!selectedProgram || isDeleting || isPending}
+                    disabled={
+                      !selectedProgram || isDeleting || isAdding || isPending
+                    }
                     className="bg-blue-900 hover:bg-blue-800 text-white"
                   >
                     {isAdding || isPending
@@ -333,7 +335,9 @@ export default function TopProgramsComponent({
                   </Button>
                   <Button
                     onClick={handleRemoveFromTopPrograms}
-                    disabled={!selectedProgram || isDeleting || isPending}
+                    disabled={
+                      !selectedProgram || isDeleting || isAdding || isPending
+                    }
                     variant="destructive"
                     className="bg-red-500 hover:bg-red-600"
                   >

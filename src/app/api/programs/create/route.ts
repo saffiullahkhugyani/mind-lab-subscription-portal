@@ -34,6 +34,8 @@ export async function POST(req: Request) {
             .select()
             .single()
 
+        console.log(insertError);
+
         if (insertError) {
             throw new Error(insertError.message);
         }

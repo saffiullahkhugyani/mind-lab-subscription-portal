@@ -177,6 +177,7 @@ export async function getAllProgramSubscriptions() {
             effectiveTo: item.effective_to,
             subscriptionType: item.subscription_type,
             startDate: item.programs.start_date,
+            subscriptionStatus: item.subscription_status
         }))
 
         return { success: true, data: mappedData };

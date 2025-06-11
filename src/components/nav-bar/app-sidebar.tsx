@@ -7,6 +7,7 @@ import {
   File,
   ChevronRight,
   HomeIcon,
+  FolderCog,
 } from "lucide-react";
 import {
   Sidebar,
@@ -54,7 +55,7 @@ const items = [
       },
       {
         title: "Delete Program",
-        url: "/delete-progam",
+        url: "/delete-program",
       },
     ],
   },
@@ -71,24 +72,9 @@ const items = [
   },
   {
     title: "Subscription Enrollment",
-    url: "#",
-    icon: Loader,
+    url: "/subscription-enrollment",
+    icon: FolderCog,
     items: [],
-  },
-];
-
-const programItems = [
-  {
-    title: "Add Program",
-    url: "/add-program",
-  },
-  {
-    title: "Delete Program",
-    url: "/delete-program",
-  },
-  {
-    title: "Modify Program",
-    url: "/modify-program",
   },
 ];
 

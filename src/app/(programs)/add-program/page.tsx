@@ -211,7 +211,7 @@ export default function AddProgram() {
 
       // Submit program data
       const response = await fetch("/api/programs/create", {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -288,7 +288,6 @@ export default function AddProgram() {
           const json = await response.json();
           if (json.success) {
             setClubs(json.data);
-            console.log(json.data);
           }
         } else {
           console.error("Failed to fetch clubs");

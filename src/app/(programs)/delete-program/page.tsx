@@ -118,7 +118,7 @@ export default function DeleteProgram() {
       try {
         const res = await fetch("/api/clubs/get-clubs");
         const json = await res.json();
-        if (json.success) setClubs(json.result.data);
+        if (json.success) setClubs(json.data);
       } catch (err) {
         console.error("Error fetching clubs:", err);
       }

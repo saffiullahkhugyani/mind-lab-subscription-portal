@@ -76,7 +76,12 @@ export default async function DashboardPage() {
       const activeSubscription = programSubscriptionList.data?.find(
         (sub) =>
           sub.programId === program.programId &&
-          sub.subscriptionType === "Active"
+          sub.subscriptionStatus === "Active"
+      );
+
+      console.log(
+        "this is after the assigning og ok: ",
+        activeSubscription?.subscriptionType
       );
 
       return {

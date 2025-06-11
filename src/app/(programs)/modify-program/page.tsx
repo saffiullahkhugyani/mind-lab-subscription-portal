@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ChevronLeft, Upload, UploadCloud, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
 import { useToast } from "@/hooks/use-toast";
-import { Clubs } from "@/types/types";
+import { Clubs, Programs } from "@/types/types";
+import { useRouter } from "next/navigation";
 
 interface FileWithPreview {
   file: File;
@@ -37,14 +38,16 @@ const formSchema = z.object({
   clubId: z
     .number({ invalid_type_error: "Club id must be provided" })
     .min(1, "Club id must be provided"),
-  programName: z.string().min(2, "Program name must be provided"),
+  programId: z.number().min(2, "Program name must be provided"),
   description: z.string().min(2, "Description is required"),
   startDate: z.string().optional(),
 });
 
 export default function ModifyProgram() {
   const [clubs, setClubs] = useState<Clubs[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [allPrograms, setAllPrograms] = useState<Programs[]>([]);
+  const [programs, setPrograms] = useState<Programs[]>([]);
+  const [isModifying, setIsModifying] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<FileWithPreview | null>(
     null
   );
@@ -54,6 +57,9 @@ export default function ModifyProgram() {
   const [uploadedFile, setUploadedFile] = useState<FileWithPreview | null>(
     null
   );
+  const [selectedProgramData, setSelectedProgramData] =
+    useState<Programs | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const { toast } = useToast();
 
@@ -61,7 +67,7 @@ export default function ModifyProgram() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       clubId: 0,
-      programName: "",
+      programId: 0,
       description: "",
       startDate: "",
     },
@@ -164,7 +170,7 @@ export default function ModifyProgram() {
 
   // Form submission handler
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsSubmitting(true);
+    setIsModifying(true);
 
     try {
       let imageUrl = "";
@@ -199,24 +205,26 @@ export default function ModifyProgram() {
       }
 
       // Prepare form data with file URLs
-      const programData = {
-        ...values,
-        programPicture: imageUrl,
-        programVideo: videoUrl,
-        programFile: fileUrl,
+      const finalData = {
+        program_id: selectedProgramData?.programId,
+        description: values.description,
+        start_date: values.startDate,
+        program_picture_url: imageUrl || selectedProgramData?.programImage,
+        program_video_url: videoUrl || selectedProgramData?.programVideo,
+        program_file_url: fileUrl || selectedProgramData?.programFile,
       };
 
       // Submit program data
-      const response = await fetch("/api/programs/create", {
-        method: "POST",
+      const response = await fetch("/api/programs/modify", {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(programData),
+        body: JSON.stringify(finalData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create program");
+        throw new Error("Failed to modify program");
       }
 
       const result = await response.json();
@@ -224,27 +232,30 @@ export default function ModifyProgram() {
       if (result.success) {
         toast({
           title: "Success",
-          description: "Program created successfully!",
+          description: "Program modified successfully!",
           variant: "success",
         });
 
-        // Reset form and files
-        form.reset();
-        setUploadedImage(null);
-        setUploadedVideo(null);
-        setUploadedFile(null);
+        startTransition(() => {
+          router.refresh();
+          // Reset form and files
+          form.reset();
+          setUploadedImage(null);
+          setUploadedVideo(null);
+          setUploadedFile(null);
+        });
       } else {
-        throw new Error(result.message || "Failed to create program");
+        throw new Error(result.message || "Failed to modify program");
       }
     } catch (error) {
-      console.error("Error creating program:", error);
+      console.error("Error modifying program:", error);
       toast({
         title: "Error",
-        description: "Failed to create program. Please try again.",
+        description: "Failed to modify program. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsModifying(false);
     }
   };
 
@@ -284,7 +295,7 @@ export default function ModifyProgram() {
         if (response.ok) {
           const json = await response.json();
           if (json.success) {
-            setClubs(json.result.data);
+            setClubs(json.data);
           }
         } else {
           console.error("Failed to fetch clubs");
@@ -294,7 +305,21 @@ export default function ModifyProgram() {
       }
     };
 
+    const fetchPrograms = async () => {
+      try {
+        const res = await fetch("/api/programs/get");
+        const json = await res.json();
+        if (json.success) {
+          setAllPrograms(json.programs);
+          setPrograms(json.programs);
+        }
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+      }
+    };
+
     fetchClubs();
+    fetchPrograms();
   }, []);
 
   // Cleanup object URLs on unmount
@@ -306,16 +331,44 @@ export default function ModifyProgram() {
     };
   }, [uploadedImage, uploadedVideo, uploadedFile]);
 
+  const clubId = form.watch("clubId");
+  const programId = form.watch("programId");
+
+  useEffect(() => {
+    const filteredPrograms = allPrograms.filter((p) => p.clubId === clubId);
+    form.setValue("programId", 0);
+    setPrograms(filteredPrograms);
+  }, [clubId, allPrograms]);
+
+  useEffect(() => {
+    const selected = programs.find(
+      (program) => program.programId === programId
+    );
+    setSelectedProgramData(selected || null);
+
+    if (selected) {
+      form.setValue("description", selected.description || "");
+      form.setValue("startDate", selected.startDate || "");
+      // Add any other fields that need to be populated
+    }
+  }, [programId, programs, form]);
+
+  const router = useRouter();
+
   return (
     <>
       <header className="flex items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
         <div className="py-6 px-4 sm:px-6 lg:px-8">
           <div className="cursor-pointer">
-            <ChevronLeft />
+            <ChevronLeft
+              onClick={() => {
+                router.back();
+              }}
+            />
           </div>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-primary">Add Program</h1>
+          <h1 className="text-2xl font-bold text-primary">Modify Program</h1>
         </div>
       </header>
 
@@ -356,13 +409,31 @@ export default function ModifyProgram() {
 
               <FormField
                 control={form.control}
-                name="programName"
+                name="programId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Program Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter program name" {...field} />
-                    </FormControl>
+                    <FormLabel>Program</FormLabel>
+                    <Select
+                      disabled={!clubId}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a program" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {programs.map((p) => (
+                          <SelectItem
+                            key={p.programId}
+                            value={p.programId!.toString()}
+                          >
+                            {p.programEnglishName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -402,163 +473,175 @@ export default function ModifyProgram() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Image Upload */}
-                <FormField
-                  control={form.control}
-                  name="programName" // We'll use an existing field name since this is just for form context
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Program Picture</FormLabel>
-                      <FormControl>
-                        <div
-                          className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
-                          {...getImageRootProps()}
-                        >
-                          <input {...getImageInputProps()} />
-                          {uploadedImage ? (
-                            <div className="relative w-full h-full">
-                              <img
-                                src={
-                                  uploadedImage.preview || "/placeholder.svg"
-                                }
-                                alt="Upload preview"
-                                className="w-full h-full object-cover rounded-md"
-                              />
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                className="absolute top-2 right-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeImage();
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col items-center">
-                              <Upload className="h-8 w-8 text-gray-400" />
-                              <span className="text-muted-foreground text-sm mt-2">
-                                {isImageDragActive
-                                  ? "Drop image here"
-                                  : "Drag image to upload"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <span>Program Picture</span>
+                  <div
+                    className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
+                    {...getImageRootProps()}
+                  >
+                    <input {...getImageInputProps()} />
 
-                {/* Video Upload */}
-                <FormField
-                  control={form.control}
-                  name="description" // Using existing field name for form context
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Program Video</FormLabel>
-                      <FormControl>
-                        <div
-                          className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
-                          {...getVideoRootProps()}
+                    {uploadedImage ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={uploadedImage.preview || "/placeholder.svg"}
+                          alt="Upload preview"
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImage();
+                          }}
                         >
-                          <input {...getVideoInputProps()} />
-                          {uploadedVideo ? (
-                            <div className="relative w-full h-full">
-                              <video
-                                src={uploadedVideo.preview}
-                                className="w-full h-full object-cover rounded-md"
-                                controls
-                              />
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                className="absolute top-2 right-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeVideo();
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col items-center">
-                              <Upload className="h-8 w-8 text-gray-400" />
-                              <span className="text-muted-foreground text-sm mt-2">
-                                {isVideoDragActive
-                                  ? "Drop video here"
-                                  : "Drag video to upload"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : selectedProgramData?.programImage ? (
+                      <div className="flex items-center space-x-2 text-blue-600">
+                        <img
+                          src={selectedProgramData.programImage}
+                          alt="Current program image"
+                          className="h-full w-full object-cover rounded"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <UploadCloud className="h-8 w-8 text-gray-400" />
+                        <span className="text-muted-foreground text-sm mt-2">
+                          {isImageDragActive
+                            ? "Drop image here"
+                            : "Drag image to upload"}
+                        </span>
+                        <span className="text-xs text-gray-400 mt-1">
+                          JPG, PNG, GIF, WEBP
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <span>Program Video</span>
+                  <div
+                    className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
+                    {...getVideoRootProps()}
+                  >
+                    <input {...getVideoInputProps()} />
+
+                    {uploadedVideo ? (
+                      <div className="relative w-full h-full">
+                        <video
+                          src={uploadedVideo.preview}
+                          className="w-full h-full object-cover rounded-md"
+                          controls
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeVideo();
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : selectedProgramData?.programVideo ? (
+                      <a
+                        href={selectedProgramData.programVideo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-blue-600"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <UploadCloud className="h-6 w-6" />
+                        <span>View Current Video</span>
+                      </a>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <UploadCloud className="h-8 w-8 text-gray-400" />
+                        <span className="text-muted-foreground text-sm mt-2">
+                          {isVideoDragActive
+                            ? "Drop video here"
+                            : "Drag video to upload"}
+                        </span>
+                        <span className="text-xs text-gray-400 mt-1">
+                          MP4, MOV, AVI, WEBM
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* File Upload */}
-              <FormField
-                control={form.control}
-                name="startDate" // Using existing field name for form context
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Attachment</FormLabel>
-                    <FormControl>
-                      <div
-                        className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
-                        {...getFileRootProps()}
+              <div>
+                <span>Program File</span>
+                <div
+                  className="min-h-[120px] flex items-center justify-center resize-none rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer relative"
+                  {...getFileRootProps()}
+                >
+                  <input {...getFileInputProps()} />
+
+                  {uploadedFile ? (
+                    <div className="flex items-center space-x-2">
+                      <UploadCloud className="h-6 w-6 text-blue-600" />
+                      <span className="text-blue-600">
+                        {uploadedFile.file.name}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFile();
+                        }}
                       >
-                        <input {...getFileInputProps()} />
-                        {uploadedFile ? (
-                          <div className="flex items-center space-x-2">
-                            <UploadCloud className="h-8 w-8 text-blue-500" />
-                            <span className="text-sm">
-                              {uploadedFile.file.name}
-                            </span>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeFile();
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center">
-                            <UploadCloud className="h-8 w-8 text-gray-400" />
-                            <span className="text-muted-foreground text-sm mt-2">
-                              {isFileDragActive
-                                ? "Drop file here"
-                                : "Drag file to upload"}
-                            </span>
-                            <span className="text-xs text-gray-400 mt-1">
-                              PDF, CSV, XLS, XLSX
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : selectedProgramData?.programFile ? (
+                    <a
+                      href={selectedProgramData.programFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 text-blue-600 underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <UploadCloud className="h-6 w-6" />
+                      <span>View File</span>
+                    </a>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <UploadCloud className="h-8 w-8 text-gray-400" />
+                      <span className="text-muted-foreground text-sm mt-2">
+                        {isFileDragActive
+                          ? "Drop file here"
+                          : "Drag file to upload"}
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        PDF, CSV, XLS, XLSX
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <div className="flex justify-center pt-4">
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isModifying}
                   className="min-w-[120px]"
                 >
-                  {isSubmitting ? "Modifying..." : "Modify Program"}
+                  {isModifying ? "Modifying..." : "Modify Program"}
                 </Button>
               </div>
             </form>

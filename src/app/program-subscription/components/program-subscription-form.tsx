@@ -266,8 +266,6 @@ const ProgramSubscriptionForm = ({
   const plan12Month = form.watch("plan12Month");
 
   useEffect(() => {
-    console.log(fetchedClubs);
-    console.log(fetchedPrograms);
     setClubs(fetchedClubs!);
     setPrograms(fetchedPrograms!);
     setAllPrograms(fetchedPrograms!);

@@ -48,11 +48,6 @@ const ProgramInfoPanel = ({ programSubscriptionList }: ProgramInfoProps) => {
         </div>
 
         <div className="space-y-1">
-          <Label>Subscription Status</Label>
-          <Input disabled value={data.subscriptionStatus ?? ""} />
-        </div>
-
-        <div className="space-y-1">
           <Label>Subscription Type</Label>
           <Input disabled value={data.subscriptionType ?? ""} />
         </div>
@@ -111,7 +106,7 @@ const ProgramInfoPanel = ({ programSubscriptionList }: ProgramInfoProps) => {
         </div>
 
         <p className="text-xs text-center text-gray-500">
-          number of assigned status
+          number of assigned subscriptions
         </p>
       </div>
     </div>

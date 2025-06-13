@@ -112,14 +112,25 @@ const ProgramSubscriptionForm = ({
   });
 
   const handleSubmitWithConfirmation = (data: FormValues) => {
-    const exists = subscriptionPrograms.some(
-      (item) =>
+    const overlaps = subscriptionPrograms.some((item) => {
+      const sameSubscription =
         item.clubId === data.clubId &&
         item.programId === data.programId &&
-        item.subscriptionType === data.subscriptionType
-    );
+        item.subscriptionType === data.subscriptionType;
 
-    if (exists) {
+      if (!sameSubscription) return false;
+
+      const itemStart = new Date(item.effectiveFrom!);
+      const itemEnd = new Date(item.effectiveTo!);
+      const newStart = new Date(data.effectiveFrom);
+      const newEnd = new Date(data.effectiveTo);
+
+      const dateOverlap = newStart <= itemEnd && newEnd >= itemStart;
+
+      return dateOverlap;
+    });
+
+    if (overlaps) {
       toast({
         title: "Already exists",
         description: `${data.subscriptionType}  already exisits for the program `,
@@ -145,8 +156,8 @@ const ProgramSubscriptionForm = ({
       plan_1_month: data.plan1Month,
       plan_3_month: data.plan3Month,
       plan_12_month: data.plan12Month,
-      effective_from: data.effectiveFrom,
-      effective_to: data.effectiveTo,
+      effective_from: data.effectiveFrom.toLocaleDateString(),
+      effective_to: data.effectiveTo.toLocaleDateString(),
     };
 
     try {
@@ -494,8 +505,8 @@ const ProgramSubscriptionForm = ({
                         <SelectContent>
                           <SelectItem value="normal">Normal</SelectItem>
                           <SelectItem value="promotion">Promotion</SelectItem>
-                          <SelectItem value="special price">
-                            Special Price
+                          <SelectItem value="special deal">
+                            Special Deal
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -569,11 +580,15 @@ const ProgramSubscriptionForm = ({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
+                        >
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            captionLayout="dropdown"
                           />
                         </PopoverContent>
                       </Popover>

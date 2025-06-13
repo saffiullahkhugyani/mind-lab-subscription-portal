@@ -8,6 +8,7 @@ import {
   ChevronRight,
   HomeIcon,
   FolderCog,
+  User,
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,18 +63,25 @@ const items = [
   {
     title: "Status",
     url: "/status",
-    icon: RefreshCw,
+    icon: Loader,
   },
   {
     title: "Program Subscription",
     url: "/program-subscription",
-    icon: Loader,
+    icon: RefreshCw,
     items: [],
   },
   {
     title: "Subscription Enrollment",
     url: "/subscription-enrollment",
     icon: FolderCog,
+    items: [],
+  },
+
+  {
+    title: "User Management",
+    url: "/user-management",
+    icon: User,
     items: [],
   },
 ];

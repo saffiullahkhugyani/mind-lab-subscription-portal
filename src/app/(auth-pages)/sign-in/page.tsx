@@ -1,3 +1,4 @@
+"use client";
 import { signInAction } from "@/app/(auth-pages)/actions/actions";
 import { FormMessage, Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
@@ -10,7 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 interface LoginProps {
   searchParams?: Record<string, string> | Message;
@@ -19,16 +22,17 @@ interface LoginProps {
 // Default empty message
 const emptyMessage: Message = { message: "" };
 
-export default async function Login({ searchParams = {} }: LoginProps) {
-  // Initialize message as undefined if no searchParams exist
-  const message: Message | undefined =
-    "success" in searchParams
-      ? { success: searchParams.success }
-      : "error" in searchParams
-        ? { error: searchParams.error }
-        : "message" in searchParams
-          ? { message: searchParams.message }
-          : emptyMessage;
+export default function Login({ searchParams = {} }: LoginProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  // // Initialize message as undefined if no searchParams exist
+  // const message: Message | undefined =
+  //   "success" in searchParams
+  //     ? { success: searchParams.success }
+  //     : "error" in searchParams
+  //       ? { error: searchParams.error }
+  //       : "message" in searchParams
+  //         ? { message: searchParams.message }
+  //         : emptyMessage;
 
   return (
     <section className="h-[calc(100vh-57px)] flex justify-center items-center">
@@ -49,12 +53,21 @@ export default async function Login({ searchParams = {} }: LoginProps) {
               <div className="flex justify-between items-center">
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input
-                type="password"
-                name="password"
-                placeholder="Your password"
-                required
-              />
+              <div className="relative">
+                {" "}
+                <Input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  required
+                />
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-600"
+                >
+                  {showPassword ? <EyeClosed /> : <Eye />}
+                </span>
+              </div>
               <Link
                 className=" flex text-xs text-foreground underline justify-end"
                 href="/forgot-password"
@@ -67,7 +80,7 @@ export default async function Login({ searchParams = {} }: LoginProps) {
               >
                 Sign in
               </SubmitButton>
-              <FormMessage message={message} />
+              {/* <FormMessage message={message} /> */}
             </div>
           </form>
         </CardContent>

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { type ComponentProps } from "react";
 import { useFormStatus } from "react-dom";
+import CustomLoader from "./CustomLoader";
 
 type Props = ComponentProps<typeof Button> & {
   pendingText?: string;
@@ -17,7 +18,7 @@ export function SubmitButton({
 
   return (
     <Button type="submit" aria-disabled={pending} {...props}>
-      {pending ? pendingText : children}
+      {pending ? <CustomLoader className="w-6 h-6 border-white" /> : children}
     </Button>
   );
 }

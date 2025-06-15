@@ -24,7 +24,7 @@ export function NavMain({
   return (
     <div>
       <SidebarGroup>
-        <SidebarGroupLabel className="font-bold text-lg text-black mb-5">
+        <SidebarGroupLabel className="font-bold text-lg mb-5">
           Subscription Portal
         </SidebarGroupLabel>
         <SidebarMenu>

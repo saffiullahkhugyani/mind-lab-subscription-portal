@@ -1,36 +1,19 @@
 import type React from "react";
 import {
-  Home,
   RefreshCw,
-  CloudUpload,
   Loader,
   File,
-  ChevronRight,
   HomeIcon,
   FolderCog,
   User,
+  Star,
 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import LogoutButton from "../header-auth";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { NavMain } from "./nav-main";
 
 // Menu items.
@@ -77,11 +60,16 @@ const items = [
     icon: FolderCog,
     items: [],
   },
-
   {
     title: "User Management",
     url: "/user-management",
     icon: User,
+    items: [],
+  },
+  {
+    title: "special deal",
+    url: "/special-deal",
+    icon: Star,
     items: [],
   },
 ];

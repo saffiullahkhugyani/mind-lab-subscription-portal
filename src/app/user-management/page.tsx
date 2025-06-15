@@ -61,7 +61,7 @@ export default function UserManagementPage() {
     <>
       <PageHeader pageTitle="User Management" />
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="lex-1 p-6 overflow-auto">
+        <div className="flex-1 p-6 overflow-auto">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card>

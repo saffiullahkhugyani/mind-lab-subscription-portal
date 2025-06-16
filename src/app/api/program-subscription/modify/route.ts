@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PUT(req: Request) {
-    const programodifyProgramSubscription = await req.json();
+    const programModifyProgramSubscription = await req.json();
     const supabase = await createClient();
     const { data: user } = await supabase.auth.getUser();
     if (!user) {
@@ -12,7 +12,7 @@ export async function PUT(req: Request) {
     try {
         const { data, error: modifyError } = await supabase
             .from('program_subscription')
-            .upsert(programodifyProgramSubscription).select();
+            .upsert(programModifyProgramSubscription).select();
 
         if (modifyError) throw new Error(modifyError.message);
 

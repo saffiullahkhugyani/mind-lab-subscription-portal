@@ -12,31 +12,32 @@ export default async function ProgramSubscriptionPage() {
   const programs = await getAllProgramsAction();
   const programSubscription = await getAllProgramSubscriptions();
 
-  // const fetchClubs = async () => {
-  //   try {
-  //     const c = await cookies();
-  //     const response = await fetch(process.env.URL! + "/api/clubs/get-clubs", {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Cookie: c.toString(),
-  //       },
-  //     });
+  const fetchClubs = async () => {
+    try {
+      const c = await cookies();
+      const response = await fetch(process.env.URL! + "/api/clubs/get-clubs", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: c.toString(),
+        },
+      });
 
-  //     const json = await response.json();
-  //     if (response.ok) {
-  //       if (json.success) {
-  //       }
-  //     } else {
-  //       console.log(json);
-  //       console.error("Failed to fetch clubs");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching clubs:", error);
-  //   }
-  // };
+      const json = await response.json();
+      if (response.ok) {
+        if (json.success) {
+          console.log(json);
+        }
+      } else {
+        console.log(json);
+        console.error("Failed to fetch clubs");
+      }
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+    }
+  };
 
-  // fetchClubs();
+  fetchClubs();
 
   return (
     <ProgramSubscriptionForm

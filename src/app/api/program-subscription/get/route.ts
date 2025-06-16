@@ -20,7 +20,7 @@ export async function GET() {
         if (getError) throw new Error(getError.message);
 
         data.map((item) => mappedData.push({
-            subcriptionId: item.id,
+            subscriptionId: item.id,
             clubId: item.club_id,
             programId: item.program_id,
             clubName: item.programs.clubs.club_name,
@@ -28,7 +28,7 @@ export async function GET() {
             programStatus: item.programs.status,
             planOneMonth: Number(item.plan_1_month),
             planThreeMonth: Number(item.plan_3_month),
-            planTweleveMonth: Number(item.plan_12_month),
+            planTwelveMonth: Number(item.plan_12_month),
             effectiveFrom: item.effective_from,
             effectiveTo: item.effective_to,
             subscriptionType: item.subscription_type,

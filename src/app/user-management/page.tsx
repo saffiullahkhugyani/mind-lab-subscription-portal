@@ -1,61 +1,76 @@
+"use client";
 import PageHeader from "@/components/page-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { Check, Search, X } from "lucide-react";
-import { Input } from "postcss";
-import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
 import { PlanUpgradeRequestDataTable } from "./components/upgrade-request-data-table";
 import { UpgradeRequestColumns } from "./components/upgrade-request-columns";
 import { PlanCancelRequestDataTable } from "./components/cancel-request-data-table";
 import { CancelRequestColumns } from "./components/cancel-request-columns";
+import {
+  PlanCancelDataModel,
+  PlanUpgradeDataModel,
+} from "@/types/custom-types";
 
 export default function UserManagementPage() {
-  const planUpgradeData = [
-    {
-      userId: "11",
-      email: "Email@gmail.com",
-      currentPlan: "1 month",
-      upgradePlan: "3 month",
-      currentPrice: "100 AED",
-      upgradePrice: "300 AED",
-    },
-    {
-      userId: "11",
-      email: "Email@gmail.com",
-      currentPlan: "1 month",
-      upgradePlan: "3 month",
-      currentPrice: "100 AED",
-      upgradePrice: "300 AED",
-    },
-  ];
+  const [planCancelData, setPlanCancelData] = useState<PlanCancelDataModel[]>(
+    []
+  );
+  const [planUpgradeData, setPlanUpgradeData] = useState<
+    PlanUpgradeDataModel[]
+  >([]);
 
-  const planCancellationData = [
-    {
-      userId: "11",
-      email: "Email@gmail.com",
-      currentPlan: "1 month",
-      reason: "Reason 1",
-      planPrice: "100 AED",
-      completionDate: "03/08/2025",
-    },
-    {
-      userId: "11",
-      email: "Email@gmail.com",
-      currentPlan: "1 month",
-      reason: "Reason 1",
-      planPrice: "100 AED",
-      completionDate: "03/08/2025",
-    },
-  ];
+  const planCancelDataList = async () => {
+    try {
+      const response = await fetch(
+        "/api/user-management/cancel-requests/read",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        if (result.success) {
+          console.log(result);
+          setPlanCancelData(result.data);
+        }
+      }
+    } catch (error) {
+      console.error(`Can not fetch data: ${error}`);
+    }
+  };
+
+  const planUpgradeDataList = async () => {
+    try {
+      const response = await fetch(
+        "/api/user-management/upgrade-requests/read",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        if (result.success) {
+          console.log(result);
+          setPlanUpgradeData(result.data);
+        }
+      }
+    } catch (error) {
+      console.log(`Can not fetch data: ${error}`);
+    }
+  };
+
+  useEffect(() => {
+    planCancelDataList();
+    planUpgradeDataList();
+  }, []);
 
   return (
     <>
@@ -68,7 +83,7 @@ export default function UserManagementPage() {
               <CardContent className="p-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-blue-600 mb-2">
-                    10
+                    {planUpgradeData.length}
                   </div>
                   <div className="text-sm font-medium text-gray-600">
                     Plan upgrade
@@ -82,7 +97,9 @@ export default function UserManagementPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">3</div>
+                  <div className="text-4xl font-bold text-blue-600 mb-2">
+                    {planCancelData.length}
+                  </div>
                   <div className="text-sm font-medium text-gray-600">
                     Plan Cancellation
                     <br />
@@ -102,7 +119,7 @@ export default function UserManagementPage() {
           {/* Plan Cancellation Request Table */}
           <PlanCancelRequestDataTable
             columns={CancelRequestColumns}
-            data={planCancellationData}
+            data={planCancelData}
           />
         </div>
       </div>

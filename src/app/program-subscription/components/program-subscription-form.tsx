@@ -213,7 +213,7 @@ const ProgramSubscriptionForm = ({
     );
 
     const finalData = {
-      id: filetedProgram?.subcriptionId,
+      id: filetedProgram?.subscriptionId,
       club_id: data.clubId,
       program_id: data.programId,
       subscription_type: data.subscriptionType,
@@ -349,7 +349,7 @@ const ProgramSubscriptionForm = ({
           setNormalPrices({
             plan1Month: normalSubscription.planOneMonth!,
             plan3Month: normalSubscription.planThreeMonth!,
-            plan12Month: normalSubscription.planTweleveMonth!,
+            plan12Month: normalSubscription.planTwelveMonth!,
           });
         }
       }

@@ -24,12 +24,10 @@ import TableDataRowActions from "./table-data-row-actions";
 
 export const CancelRequestColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "userId",
-    header: () => <div className="tet-right">User Id</div>,
+    accessorKey: "studentId",
+    header: () => <div className="tet-right">Student Id</div>,
     cell: ({ row }) => {
-      return (
-        <div className="font-medium">{row.getValue("userId")}</div>
-      );
+      return <div className="font-medium">{row.getValue("studentId")}</div>;
     },
   },
   {
@@ -45,11 +43,7 @@ export const CancelRequestColumns: ColumnDef<any>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      return (
-        <div>
-            {row.getValue("email")}
-        </div>
-      );
+      return <div>{row.getValue("email")}</div>;
     },
   },
   {
@@ -121,8 +115,7 @@ export const CancelRequestColumns: ColumnDef<any>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      return <TableDataRowActions row={row} />;
+      return <TableDataRowActions cancelRow={row} tableType="cancel" />;
     },
   },
-  
 ];

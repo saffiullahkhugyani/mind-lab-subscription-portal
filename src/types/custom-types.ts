@@ -1,5 +1,5 @@
 export type ProgramSubscriptionModel = {
-    subcriptionId?: number | null
+    subscriptionId?: number | null
     clubId?: number | null
     clubName?: string | null
     programId?: number | null
@@ -8,9 +8,29 @@ export type ProgramSubscriptionModel = {
     subscriptionType?: string | null
     planOneMonth?: number | null
     planThreeMonth?: number | null
-    planTweleveMonth?: number | null
+    planTwelveMonth?: number | null
     effectiveFrom?: string | null
     effectiveTo?: string | null
     subscriptionStatus?: string | null
     startDate?: string | null
+}
+
+export type PlanUpgradeDataModel = {
+    currentPlan?: string | null
+    currentPrice?: string | null
+    email?: string | null
+    id?: number
+    studentId: string
+    upgradePlan?: string | null
+    upgradePrice?: string | null
+}
+
+export type PlanCancelDataModel = {
+    completionDate?: string | null
+    currentPlan?: string | null
+    email?: string | null
+    id?: number
+    planPrice?: string | null
+    reason?: string | null
+    studentId: string
 }

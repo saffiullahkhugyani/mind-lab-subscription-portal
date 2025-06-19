@@ -61,8 +61,8 @@ const items = [
     items: [],
   },
   {
-    title: "User Management",
-    url: "/user-management",
+    title: "Upgrade Management",
+    url: "/upgrade-management",
     icon: User,
     items: [],
   },

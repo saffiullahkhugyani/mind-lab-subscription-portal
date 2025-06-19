@@ -79,11 +79,6 @@ export default async function DashboardPage() {
           sub.subscriptionStatus === "Active"
       );
 
-      console.log(
-        "this is after the assigning og ok: ",
-        activeSubscription?.subscriptionType
-      );
-
       return {
         ...program,
         subscriptionType: activeSubscription?.subscriptionType || "none",

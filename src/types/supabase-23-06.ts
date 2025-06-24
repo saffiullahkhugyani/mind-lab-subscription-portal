@@ -561,6 +561,88 @@ export type Database = {
           },
         ]
       }
+      "plan-cancel-request": {
+        Row: {
+          completion_date: string | null
+          current_plan: string | null
+          email: string | null
+          id: number
+          plan_price: string | null
+          reason: string | null
+          status: string | null
+          student_id: string
+        }
+        Insert: {
+          completion_date?: string | null
+          current_plan?: string | null
+          email?: string | null
+          id?: number
+          plan_price?: string | null
+          reason?: string | null
+          status?: string | null
+          student_id: string
+        }
+        Update: {
+          completion_date?: string | null
+          current_plan?: string | null
+          email?: string | null
+          id?: number
+          plan_price?: string | null
+          reason?: string | null
+          status?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan-cancel-request_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      "plan-upgrade-request": {
+        Row: {
+          current_plan: string | null
+          current_price: string | null
+          email: string | null
+          id: number
+          status: string | null
+          student_id: string
+          upgrade_plan: string | null
+          upgrade_price: string | null
+        }
+        Insert: {
+          current_plan?: string | null
+          current_price?: string | null
+          email?: string | null
+          id?: number
+          status?: string | null
+          student_id: string
+          upgrade_plan?: string | null
+          upgrade_price?: string | null
+        }
+        Update: {
+          current_plan?: string | null
+          current_price?: string | null
+          email?: string | null
+          id?: number
+          status?: string | null
+          student_id?: string
+          upgrade_plan?: string | null
+          upgrade_price?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan-upgrade-request_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_data_testing: {
         Row: {
           eliminated: string | null
@@ -839,10 +921,11 @@ export type Database = {
           effective_from: string | null
           effective_to: string | null
           id: number
-          plan_1_month: string | null
-          plan_12_month: string | null
-          plan_3_month: string | null
+          plan_1_month: number | null
+          plan_12_month: number | null
+          plan_3_month: number | null
           program_id: number | null
+          subscription_status: string | null
           subscription_type: string | null
         }
         Insert: {
@@ -851,10 +934,11 @@ export type Database = {
           effective_from?: string | null
           effective_to?: string | null
           id?: number
-          plan_1_month?: string | null
-          plan_12_month?: string | null
-          plan_3_month?: string | null
+          plan_1_month?: number | null
+          plan_12_month?: number | null
+          plan_3_month?: number | null
           program_id?: number | null
+          subscription_status?: string | null
           subscription_type?: string | null
         }
         Update: {
@@ -863,10 +947,11 @@ export type Database = {
           effective_from?: string | null
           effective_to?: string | null
           id?: number
-          plan_1_month?: string | null
-          plan_12_month?: string | null
-          plan_3_month?: string | null
+          plan_1_month?: number | null
+          plan_12_month?: number | null
+          plan_3_month?: number | null
           program_id?: number | null
+          subscription_status?: string | null
           subscription_type?: string | null
         }
         Relationships: [
@@ -1124,6 +1209,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      special_deal_email_send: {
+        Row: {
+          email_id: string | null
+          id: number
+          program_id: number | null
+          send_date: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          email_id?: string | null
+          id?: number
+          program_id?: number | null
+          send_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          email_id?: string | null
+          id?: number
+          program_id?: number | null
+          send_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "special_deal_email_send_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["program_id"]
+          },
+          {
+            foreignKeyName: "special_deal_email_send_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      "special-deal-email-templates": {
+        Row: {
+          created_at: string
+          email_subject: string | null
+          id: number
+          template_content: string | null
+          template_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_subject?: string | null
+          id?: number
+          template_content?: string | null
+          template_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_subject?: string | null
+          id?: number
+          template_content?: string | null
+          template_name?: string | null
+        }
+        Relationships: []
       }
       sponsor: {
         Row: {

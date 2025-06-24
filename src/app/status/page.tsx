@@ -66,13 +66,12 @@ export default function Status() {
     // Fetching programs
     const fetchPrograms = async () => {
       try {
-        const res = await fetch("/api/programs/get");
-        const json = await res.json();
-        if (json.success) {
-          setAllPrograms(json.programs);
-          setPrograms(json.programs);
+        const response = await fetch("/api/programs/get");
+        const result = await response.json();
+        if (result.success) {
+          setAllPrograms(result.data);
+          setPrograms(result.data);
         }
-        console.log(json.programs);
       } catch (err) {
         console.error("Error fetching programs:", err);
       }

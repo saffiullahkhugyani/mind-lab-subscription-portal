@@ -1,61 +1,97 @@
 "use client";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ClickableCard from "./components/clickable-card";
 import { Edit, Plus, Send, Trash2 } from "lucide-react";
 import { SpecialDealDataTable } from "./components/special-deal-data-table";
 import { SpecialDealColumns } from "./components/special-deal-columns";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { SubmitButton } from "@/components/submit-button";
-import { Button } from "@/components/ui/button";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import SendSpecialDeal from "./components/SendSpecialDeal";
+import CreateEmailTemplate from "./components/CreateEmailTemplate";
+import {
+  ProgramSubscriptionModel,
+  SpecialDealSendedEmailModel,
+  Users,
+} from "@/types/custom-types";
+import { useToast } from "@/hooks/use-toast";
+import { Programs } from "@/types/types";
 
-const specialDealEmailData = [
-  {
-    userId: "11",
-    email: "Email@gmail.com",
-    currentPlan: "1 month",
-    template: "template 1",
-    sendDate: "03/08/2025",
-    status: "Send",
-  },
-  {
-    userId: "11",
-    email: "Email@gmail.com",
-    currentPlan: "template 2",
-    template: "Reason 1",
-    sendDate: "03/08/2025",
-    status: "Send",
-  },
-];
-
-// 1. Define Zod schema
-const FormSchema = z.object({
-  template: z.string().min(1, "Template is required"),
-  user: z.string().min(1, "User is required"),
-  program: z.string().min(1, "Program is required"),
-});
-
-// 2. Infer form type
-type FormValues = z.infer<typeof FormSchema>;
+const enum DialogEnum {
+  SEND_SPECIAL_DEAL = "SEND_SPECIAL_DEAL",
+  SEND_SPECIAL_DEAL_BULK = "SEND_SPECIAL_DEAL_BULK",
+}
 
 export default function SpecialDealPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<DialogEnum | null>(null);
+  const [specialDealSendedEmails, setSpecialDealSendedEmails] = useState<
+    SpecialDealSendedEmailModel[]
+  >([]);
+  const [users, setUsers] = useState<Users[] | null>(null);
+  const [programs, setPrograms] = useState<Programs[] | null>(null);
+  const [programSubscription, setProgramSubscription] = useState<
+    ProgramSubscriptionModel[] | null
+  >(null);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
-  });
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [emailRes, usersRes, programsRes, programSubscriptionRes] =
+          await Promise.all([
+            fetch("/api/special-deal/get-sended-emails", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }),
+            fetch("/api/users/get-users", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }),
+            fetch("/api/programs/get", {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json",
+              },
+            }),
+            fetch("/api/program-subscription/get", {
+              method: "GET",
+              headers: {
+                "Content-type": "application/json",
+              },
+            }),
+          ]);
 
-  const { reset, handleSubmit, register } = form;
+        if (
+          !emailRes.ok ||
+          !usersRes.ok ||
+          !programsRes.ok ||
+          !programSubscriptionRes.ok
+        ) {
+          console.log("API Failed to get data");
+        }
 
-  const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
-    console.log(data);
-  };
+        const [emailData, usersData, programsData, programSubscriptionData] =
+          await Promise.all([
+            emailRes.json().then((data) => data.data),
+            usersRes.json().then((data) => data.data),
+            programsRes.json().then((data) => data.data),
+            programSubscriptionRes.json().then((data) => data.data),
+          ]);
+
+        setSpecialDealSendedEmails(emailData);
+        setUsers(usersData);
+        setPrograms(programsData);
+        setProgramSubscription(programSubscriptionData);
+      } catch (error: any) {
+        console.log("failed to fetch data: ", error);
+      }
+    };
+    fetchAllData();
+  }, [isOpen]);
 
   return (
     <>
@@ -66,80 +102,41 @@ export default function SpecialDealPage() {
           <ClickableCard
             title="Send Special Deal"
             icon={Send}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setDialogType(DialogEnum.SEND_SPECIAL_DEAL);
+              setIsOpen(true);
+            }}
           />
           <ClickableCard title="Send Special Deal in bulk" icon={Send} />
-        </div>
-        {/* email action Cards */}
-        <div className="flex gap-6 mb-8">
-          <ClickableCard
-            title="Create Email Template"
-            icon={Plus}
-            iconColor="text-green-500"
-          />
-          <ClickableCard
-            title="Modify Email Template"
-            icon={Edit}
-            iconColor="text-yellow-500"
-          />
-          <ClickableCard
-            title="Delete Email Template"
-            icon={Trash2}
-            iconColor="text-red-500"
-          />
         </div>
 
         <div>
           <SpecialDealDataTable
             columns={SpecialDealColumns}
-            data={specialDealEmailData}
+            data={specialDealSendedEmails}
           />
         </div>
       </div>
       <ResponsiveDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Send Special Deal Email"
+        title={
+          dialogType === DialogEnum.SEND_SPECIAL_DEAL
+            ? "Send Special Deal Email"
+            : "Send Special Deal Email in Bulk"
+        }
       >
-        <form
-          className="flex-1 flex flex-col gap-4 mt-8"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <div className="flex flex-col gap-4 p-5">
-            <div>
-              <Label htmlFor="template">Choose Template</Label>
-              <Input
-                id="template"
-                placeholder="Template 1"
-                {...register("template")}
-              />
-            </div>
-            <div>
-              <Label htmlFor="user">Choose User</Label>
-              <Input id="user" placeholder="User name" {...register("user")} />
-            </div>
-            <div>
-              <Label htmlFor="program">Choose Program</Label>
-              <Input
-                id="program"
-                placeholder="Program"
-                {...register("program")}
-              />
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <SubmitButton type="submit">Send Email</SubmitButton>
-              <Button
-                type="button"
-                variant="ghost"
-                className="bg-accent"
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </form>
+        {dialogType === DialogEnum.SEND_SPECIAL_DEAL && (
+          <SendSpecialDeal
+            setIsOpen={setIsOpen}
+            users={users}
+            programs={programs}
+            programSubscription={programSubscription}
+          />
+        )}
+        {/* {dialogType === DialogEnum.CREATE_EMAIL_TEMPLATE && (
+          <CreateEmailTemplate setIsOpen={setIsOpen} />
+        )} */}
       </ResponsiveDialog>
     </>
   );

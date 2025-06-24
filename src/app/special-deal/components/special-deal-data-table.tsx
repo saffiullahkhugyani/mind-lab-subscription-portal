@@ -56,16 +56,18 @@ export function SpecialDealDataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xl font-bold text-blue-900">Plan Cancel Request</p>
+        <p className="text-xl font-bold text-blue-900">
+          Special Deal Emails Send
+        </p>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Input
               placeholder="Search by user email..."
               value={
-                (table.getColumn("email")?.getFilterValue() as string) ?? ""
+                (table.getColumn("userEmail")?.getFilterValue() as string) ?? ""
               }
               onChange={(event) =>
-                table.getColumn("email")?.setFilterValue(event.target.value)
+                table.getColumn("userEmail")?.setFilterValue(event.target.value)
               }
             />
           </div>

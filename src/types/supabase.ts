@@ -478,8 +478,8 @@ export type Database = {
           id: number
           message: string | null
           notification_type:
-          | Database["public"]["Enums"]["notification_type"]
-          | null
+            | Database["public"]["Enums"]["notification_type"]
+            | null
           recipient_id: string | null
           sender_id: string | null
           status: Database["public"]["Enums"]["notification_status"] | null
@@ -490,8 +490,8 @@ export type Database = {
           id?: number
           message?: string | null
           notification_type?:
-          | Database["public"]["Enums"]["notification_type"]
-          | null
+            | Database["public"]["Enums"]["notification_type"]
+            | null
           recipient_id?: string | null
           sender_id?: string | null
           status?: Database["public"]["Enums"]["notification_status"] | null
@@ -502,8 +502,8 @@ export type Database = {
           id?: number
           message?: string | null
           notification_type?:
-          | Database["public"]["Enums"]["notification_type"]
-          | null
+            | Database["public"]["Enums"]["notification_type"]
+            | null
           recipient_id?: string | null
           sender_id?: string | null
           status?: Database["public"]["Enums"]["notification_status"] | null
@@ -561,7 +561,7 @@ export type Database = {
           },
         ]
       }
-       "plan-cancel-request": {
+      plan_cancel_request: {
         Row: {
           completion_date: string | null
           current_plan: string | null
@@ -569,8 +569,8 @@ export type Database = {
           id: number
           plan_price: string | null
           reason: string | null
-          student_id: string
-          status: string
+          status: string | null
+          user_id: string
         }
         Insert: {
           completion_date?: string | null
@@ -579,8 +579,8 @@ export type Database = {
           id?: number
           plan_price?: string | null
           reason?: string | null
-          student_id?: string 
           status?: string | null
+          user_id?: string
         }
         Update: {
           completion_date?: string | null
@@ -589,56 +589,56 @@ export type Database = {
           id?: number
           plan_price?: string | null
           reason?: string | null
-          student_id?: string 
           status?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "plan-cancel-request_student_id_fkey"
-            columns: ["student_id"]
+            foreignKeyName: "plan-cancel-request_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "students"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      "plan-upgrade-request": {
+      plan_upgrade_request: {
         Row: {
           current_plan: string | null
           current_price: string | null
           email: string | null
           id: number
-          student_id: string
-          status: string
+          status: string | null
           upgrade_plan: string | null
           upgrade_price: string | null
+          user_id: string
         }
         Insert: {
           current_plan?: string | null
           current_price?: string | null
           email?: string | null
           id?: number
-          student_id: string
           status?: string | null
           upgrade_plan?: string | null
           upgrade_price?: string | null
+          user_id?: string
         }
         Update: {
           current_plan?: string | null
           current_price?: string | null
           email?: string | null
           id?: number
-          student_id?: string
           status?: string | null
           upgrade_plan?: string | null
           upgrade_price?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "plan-upgrade-request_student_id_fkey"
-            columns: ["student_id"]
+            foreignKeyName: "plan-upgrade-request_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "students"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -921,12 +921,12 @@ export type Database = {
           effective_from: string | null
           effective_to: string | null
           id: number
-          plan_1_month: string | null
-          plan_12_month: string | null
-          plan_3_month: string | null
+          plan_1_month: number | null
+          plan_12_month: number | null
+          plan_3_month: number | null
           program_id: number | null
-          subscription_type: string | null
           subscription_status: string | null
+          subscription_type: string | null
         }
         Insert: {
           club_id?: number | null
@@ -934,12 +934,12 @@ export type Database = {
           effective_from?: string | null
           effective_to?: string | null
           id?: number
-          plan_1_month?: string | null
-          plan_12_month?: string | null
-          plan_3_month?: string | null
+          plan_1_month?: number | null
+          plan_12_month?: number | null
+          plan_3_month?: number | null
           program_id?: number | null
-          subscription_type?: string | null
           subscription_status?: string | null
+          subscription_type?: string | null
         }
         Update: {
           club_id?: number | null
@@ -947,12 +947,12 @@ export type Database = {
           effective_from?: string | null
           effective_to?: string | null
           id?: number
-          plan_1_month?: string | null
-          plan_12_month?: string | null
-          plan_3_month?: string | null
+          plan_1_month?: number | null
+          plan_12_month?: number | null
+          plan_3_month?: number | null
           program_id?: number | null
-          subscription_type?: string | null
           subscription_status?: string | null
+          subscription_type?: string | null
         }
         Relationships: [
           {
@@ -1209,6 +1209,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      special_deal_email_send: {
+        Row: {
+          email_id: string | null
+          id: number
+          program_id: number | null
+          send_date: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          email_id?: string | null
+          id?: number
+          program_id?: number | null
+          send_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          email_id?: string | null
+          id?: number
+          program_id?: number | null
+          send_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "special_deal_email_send_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["program_id"]
+          },
+          {
+            foreignKeyName: "special_deal_email_send_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      "special-deal-email-templates": {
+        Row: {
+          created_at: string
+          email_subject: string | null
+          id: number
+          template_content: string | null
+          template_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_subject?: string | null
+          id?: number
+          template_content?: string | null
+          template_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_subject?: string | null
+          id?: number
+          template_content?: string | null
+          template_name?: string | null
+        }
+        Relationships: []
       }
       sponsor: {
         Row: {
@@ -1608,24 +1674,24 @@ export type Database = {
     }
     Enums: {
       app_role:
-      | "super-admin"
-      | "admin"
-      | "admin-sponsor"
-      | "sponsor"
-      | "student"
+        | "super-admin"
+        | "admin"
+        | "admin-sponsor"
+        | "sponsor"
+        | "student"
       coupon_status:
-      | "coupon generated"
-      | "coupon expired"
-      | "coupon in progress"
-      | "coupon redeemed"
-      | "program completed"
-      | "program not completed"
+        | "coupon generated"
+        | "coupon expired"
+        | "coupon in progress"
+        | "coupon redeemed"
+        | "program completed"
+        | "program not completed"
       notification_status: "pending" | "read" | "accepted" | "rejected"
       notification_type:
-      | "parent_request"
-      | "event_update"
-      | "system_alert"
-      | "parent_request_accepted"
+        | "parent_request"
+        | "event_update"
+        | "system_alert"
+        | "parent_request_accepted"
       signup_methods: "email" | "google" | "apple"
     }
     CompositeTypes: {
@@ -1638,106 +1704,106 @@ type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof Database },
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
   ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-  ? R
-  : never
+    ? R
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : never
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof Database },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
   ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
+      Insert: infer I
+    }
+    ? I
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof Database },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
   ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
-  ? U
-  : never
+      Update: infer U
+    }
+    ? U
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof Database },
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
   ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-  ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
 export const Constants = {
   graphql_public: {

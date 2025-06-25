@@ -24,10 +24,10 @@ import TableDataRowActions from "./table-data-row-actions";
 
 export const CancelRequestColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "studentId",
-    header: () => <div className="tet-right">Student Id</div>,
+    accessorKey: "sr",
+    header: () => <div className="tet-right">Sr. no</div>,
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("studentId")}</div>;
+      return <div className="font-medium">{row.index + 1}</div>;
     },
   },
   {

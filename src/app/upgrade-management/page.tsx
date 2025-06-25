@@ -10,6 +10,7 @@ import {
   PlanCancelDataModel,
   PlanUpgradeDataModel,
 } from "@/types/custom-types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UpgradeManagementPage() {
   const [planCancelData, setPlanCancelData] = useState<PlanCancelDataModel[]>(
@@ -18,109 +19,110 @@ export default function UpgradeManagementPage() {
   const [planUpgradeData, setPlanUpgradeData] = useState<
     PlanUpgradeDataModel[]
   >([]);
+  const [fetchingData, setFetchingData] = useState<boolean>(true);
 
-  const planCancelDataList = async () => {
+  const fetchPlanCancelAndUpgradeRequests = async () => {
     try {
-      const response = await fetch(
-        "/api/user-management/cancel-requests/read",
-        {
+      const [cancelRes, upgradeRes] = await Promise.all([
+        fetch("/api/upgrade-management/cancel-requests/read", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        if (result.success) {
-          console.log(result);
-          setPlanCancelData(result.data);
-        }
-      }
-    } catch (error) {
-      console.error(`Can not fetch data: ${error}`);
-    }
-  };
-
-  const planUpgradeDataList = async () => {
-    try {
-      const response = await fetch(
-        "/api/user-management/upgrade-requests/read",
-        {
+        }),
+        fetch("/api/upgrade-management/upgrade-requests/read", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
+        }),
+      ]);
 
-      const result = await response.json();
-      if (response.ok) {
-        if (result.success) {
-          console.log(result);
-          setPlanUpgradeData(result.data);
-        }
+      if (!cancelRes.ok || !upgradeRes.ok) {
+        throw new Error();
       }
-    } catch (error) {
-      console.log(`Can not fetch data: ${error}`);
+      const [cancelData, upgradeData] = await Promise.all([
+        cancelRes.json().then((data) => data.data),
+        upgradeRes.json().then((data) => data.data),
+      ]);
+      setPlanCancelData(cancelData);
+      setPlanUpgradeData(upgradeData);
+    } catch (error: any) {
+      console.log("Error: ", error);
+    } finally {
+      setFetchingData(false);
     }
   };
 
   useEffect(() => {
-    planCancelDataList();
-    planUpgradeDataList();
+    fetchPlanCancelAndUpgradeRequests();
   }, []);
 
   return (
     <>
       <PageHeader pageTitle="Upgrade Management" />
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex-1 p-6 overflow-auto">
+      <div className="max-w-7xl mx-auto ">
+        <div className="flex flex-col p-6 gap-6 overflow-auto">
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {planUpgradeData.length}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {!fetchingData ? (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                      {planUpgradeData.length}
+                    </div>
+                    <div className="text-sm font-medium text-gray-600">
+                      Plan upgrade
+                      <br />
+                      Request
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-gray-600">
-                    Plan upgrade
-                    <br />
-                    Request
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Skeleton className="h-[140px]" />
+            )}
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {planCancelData.length}
+            {!fetchingData ? (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                      {planCancelData.length}
+                    </div>
+                    <div className="text-sm font-medium text-gray-600">
+                      Plan Cancellation
+                      <br />
+                      Request
+                    </div>
                   </div>
-                  <div className="text-sm font-medium text-gray-600">
-                    Plan Cancellation
-                    <br />
-                    Request
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Skeleton className="h-[140px]" />
+            )}
           </div>
 
           {/* Plan Upgrade Request Table */}
-          <PlanUpgradeRequestDataTable
-            columns={UpgradeRequestColumns}
-            data={planUpgradeData}
-          />
+          {!fetchingData ? (
+            <PlanUpgradeRequestDataTable
+              columns={UpgradeRequestColumns}
+              data={planUpgradeData}
+            />
+          ) : (
+            <Skeleton className="h-[150px]" />
+          )}
 
           {/* Plan Cancellation Request Table */}
-          <PlanCancelRequestDataTable
-            columns={CancelRequestColumns}
-            data={planCancelData}
-          />
+          {!fetchingData ? (
+            <PlanCancelRequestDataTable
+              columns={CancelRequestColumns}
+              data={planCancelData}
+            />
+          ) : (
+            <Skeleton className="h-[150px]" />
+          )}
         </div>
       </div>
     </>

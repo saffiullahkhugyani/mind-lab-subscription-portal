@@ -51,12 +51,12 @@ export default function TableDataRowActions({
       if (tableType === "upgrade") {
         console.log("Calling upgrade approve API", data);
         const response = await fetch(
-          "/api/user-management/upgrade-requests/update",
+          "/api/upgrade-management/upgrade-requests/update",
           {
             method: "PUT",
             body: JSON.stringify({
               id: data.id,
-              studentId: data.studentId,
+              userId: data.userId,
               status: "Approved",
             }),
           }
@@ -67,7 +67,7 @@ export default function TableDataRowActions({
           if (result.success) {
             toast({
               title: "Plan Upgrade Approved",
-              description: "Student plan upgrade approved",
+              description: "User plan upgrade approved",
               variant: "success",
             });
           }
@@ -75,12 +75,12 @@ export default function TableDataRowActions({
       } else {
         console.log("Calling cancel approve API", data);
         const response = await fetch(
-          "/api/user-management/cancel-requests/update",
+          "/api/upgrade-management/cancel-requests/update",
           {
             method: "PUT",
             body: JSON.stringify({
               id: data.id,
-              studentId: data.studentId,
+              userId: data.userId,
               status: "Approved",
             }),
           }
@@ -91,7 +91,7 @@ export default function TableDataRowActions({
           if (result.success) {
             toast({
               title: "Plan Cancel Approved",
-              description: "Student plan cancelled approved",
+              description: "User plan cancelled approved",
               variant: "success",
             });
           }
@@ -113,12 +113,12 @@ export default function TableDataRowActions({
       if (tableType === "upgrade") {
         console.log("Calling upgrade decline API", data);
         const response = await fetch(
-          "/api/user-management/upgrade-requests/update",
+          "/api/upgrade-management/upgrade-requests/update",
           {
             method: "PUT",
             body: JSON.stringify({
               id: data.id,
-              studentId: data.studentId,
+              userId: data.userId,
               status: "Declined",
             }),
           }
@@ -129,7 +129,7 @@ export default function TableDataRowActions({
           if (result.success) {
             toast({
               title: "Plan Upgrade Declined",
-              description: "Student upgrade plan declined",
+              description: "User upgrade plan declined",
               variant: "success",
             });
           }
@@ -137,12 +137,12 @@ export default function TableDataRowActions({
       } else {
         console.log("Calling cancel decline API", data);
         const response = await fetch(
-          "/api/user-management/cancel-requests/update",
+          "/api/upgrade-management/cancel-requests/update",
           {
             method: "PUT",
             body: JSON.stringify({
               id: data.id,
-              studentId: data.studentId,
+              userId: data.userId,
               status: "Declined",
             }),
           }
@@ -153,7 +153,7 @@ export default function TableDataRowActions({
           if (result.success) {
             toast({
               title: "Plan Cancel Declined",
-              description: "Student plan cancel declined",
+              description: "User plan cancel declined",
               variant: "success",
             });
           }

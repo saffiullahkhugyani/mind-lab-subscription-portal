@@ -16,6 +16,8 @@ import {
 } from "@/types/custom-types";
 import { useToast } from "@/hooks/use-toast";
 import { Programs } from "@/types/types";
+import SendSpecialDealBulk from "./components/SendSpecialDealBulk";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const enum DialogEnum {
   SEND_SPECIAL_DEAL = "SEND_SPECIAL_DEAL",
@@ -33,9 +35,11 @@ export default function SpecialDealPage() {
   const [programSubscription, setProgramSubscription] = useState<
     ProgramSubscriptionModel[] | null
   >(null);
+  const [fetchingData, setFetchingData] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchAllData = async () => {
+      setFetchingData(true);
       try {
         const [emailRes, usersRes, programsRes, programSubscriptionRes] =
           await Promise.all([
@@ -88,6 +92,8 @@ export default function SpecialDealPage() {
         setProgramSubscription(programSubscriptionData);
       } catch (error: any) {
         console.log("failed to fetch data: ", error);
+      } finally {
+        setFetchingData(false);
       }
     };
     fetchAllData();
@@ -99,22 +105,42 @@ export default function SpecialDealPage() {
       <div className="flex-1 p-6 overflow-auto">
         {/* send email Cards */}
         <div className="flex gap-6 mb-8">
-          <ClickableCard
-            title="Send Special Deal"
-            icon={Send}
-            onClick={() => {
-              setDialogType(DialogEnum.SEND_SPECIAL_DEAL);
-              setIsOpen(true);
-            }}
-          />
-          <ClickableCard title="Send Special Deal in bulk" icon={Send} />
+          {!fetchingData ? (
+            <>
+              <ClickableCard
+                title="Send Special Deal"
+                icon={Send}
+                onClick={() => {
+                  setDialogType(DialogEnum.SEND_SPECIAL_DEAL);
+                  setIsOpen(true);
+                }}
+              />
+              <ClickableCard
+                title="Send Special Deal in bulk"
+                icon={Send}
+                onClick={() => {
+                  setDialogType(DialogEnum.SEND_SPECIAL_DEAL_BULK);
+                  setIsOpen(true);
+                }}
+              />
+            </>
+          ) : (
+            <div className="flex gap-6 mb-8">
+              <Skeleton className="w-[250px] h-[150px]" />
+              <Skeleton className="w-[250px] h-[150px]" />
+            </div>
+          )}
         </div>
 
         <div>
-          <SpecialDealDataTable
-            columns={SpecialDealColumns}
-            data={specialDealSendedEmails}
-          />
+          {!fetchingData ? (
+            <SpecialDealDataTable
+              columns={SpecialDealColumns}
+              data={specialDealSendedEmails}
+            />
+          ) : (
+            <Skeleton className="w-full h-[250px]" />
+          )}
         </div>
       </div>
       <ResponsiveDialog
@@ -134,9 +160,14 @@ export default function SpecialDealPage() {
             programSubscription={programSubscription}
           />
         )}
-        {/* {dialogType === DialogEnum.CREATE_EMAIL_TEMPLATE && (
-          <CreateEmailTemplate setIsOpen={setIsOpen} />
-        )} */}
+        {dialogType === DialogEnum.SEND_SPECIAL_DEAL_BULK && (
+          <SendSpecialDealBulk
+            setIsOpen={setIsOpen}
+            users={users}
+            programs={programs}
+            programSubscription={programSubscription}
+          />
+        )}
       </ResponsiveDialog>
     </>
   );

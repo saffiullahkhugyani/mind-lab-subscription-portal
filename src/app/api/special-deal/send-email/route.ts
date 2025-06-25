@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       throw new Error(insertEmailDataError.message);
     }
 
-    return Response.json({ data });
+    return Response.json({ success: true, data: data });
   } catch (err: any) {
     return Response.json({ error: err.message }, { status: 400 });
   }

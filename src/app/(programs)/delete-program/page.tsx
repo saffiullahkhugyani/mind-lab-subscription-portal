@@ -239,14 +239,19 @@ export default function DeleteProgram() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Program Picture</Label>
-                  <div className="min-h-[120px] flex items-center justify-center border-2 border-dashed rounded">
-                    {selectedProgramData?.programImage && (
-                      <img
-                        src={selectedProgramData.programImage}
-                        alt="Program Image"
-                        className="w-full h-full object-contain rounded-md"
-                      />
-                    )}
+                  <div className="min-h-[120px] flex items-center justify-center border-2 border-dashed rounded gap-3">
+                    {selectedProgramData?.programImage &&
+                      selectedProgramData.programImage.map((item, index) => {
+                        console.log(item);
+                        return (
+                          <img
+                            key={index + 1}
+                            src={item}
+                            alt="Program Image"
+                            className="flex justify-center items-center w-[60px] h-[60px] object-cover rounded-sm border"
+                          />
+                        );
+                      })}
                   </div>
                 </div>
 

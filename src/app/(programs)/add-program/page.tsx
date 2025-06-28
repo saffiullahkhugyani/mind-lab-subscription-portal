@@ -11,7 +11,7 @@ import {
 import { ChevronLeft, Upload, UploadCloud, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { boolean, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Select,
@@ -46,8 +46,8 @@ const formSchema = z.object({
 export default function AddProgram() {
   const [clubs, setClubs] = useState<Clubs[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<FileWithPreview | null>(
-    null
+  const [uploadedImage, setUploadedImage] = useState<FileWithPreview[] | null>(
+    []
   );
   const [uploadedVideo, setUploadedVideo] = useState<FileWithPreview | null>(
     null
@@ -70,14 +70,34 @@ export default function AddProgram() {
     },
   });
 
+  useEffect(() => {
+    console.log(uploadedImage);
+  }, [uploadedImage]);
+
   // Image dropzone
-  const onImageDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      const preview = URL.createObjectURL(file);
-      setUploadedImage({ file, preview });
-    }
-  }, []);
+  const onImageDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      acceptedFiles.map((file) => {
+        if (file) {
+          const preview = URL.createObjectURL(file);
+          const newImg = { file, preview };
+          setUploadedImage((prevImage) => {
+            const prevItem = prevImage?.some((item) => {
+              return item.file.name.trim() === newImg.file.name.trim();
+            });
+            if (prevItem) {
+              return [...prevImage!];
+            } else if (uploadedImage !== null) {
+              return [...prevImage!, newImg];
+            } else {
+              return [newImg];
+            }
+          });
+        }
+      });
+    },
+    [uploadedImage]
+  );
 
   const {
     getRootProps: getImageRootProps,
@@ -88,7 +108,7 @@ export default function AddProgram() {
     accept: {
       "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
     },
-    maxFiles: 1,
+    maxFiles: 4,
   });
 
   // Video dropzone
@@ -170,17 +190,27 @@ export default function AddProgram() {
     setIsSubmitting(true);
 
     try {
-      let imageUrl = "";
+      let imageUrls: string[] = [];
       let videoUrl = "";
       let fileUrl = "";
 
       // Upload image if present
-      if (uploadedImage) {
-        const url = await uploadFileToSupabase(
-          uploadedImage.file,
-          "program-images"
+      if (uploadedImage && uploadedImage.length > 0) {
+        const urls = await Promise.all(
+          uploadedImage!.map(async (item, index) => {
+            const url = await uploadFileToSupabase(item.file, "program-images");
+            if (url) {
+              imageUrls.push(url);
+              console.log(
+                `This is the url ${url} for the image on index ${index + 1}`
+              );
+              return url;
+            }
+          })
         );
-        if (url) imageUrl = url;
+        imageUrls = urls.filter(
+          (url): url is string => typeof url === "string"
+        );
       }
 
       // Upload video if present
@@ -204,7 +234,7 @@ export default function AddProgram() {
       // Prepare form data with file URLs
       const programData = {
         ...values,
-        programPicture: imageUrl,
+        programPicture: imageUrls,
         programVideo: videoUrl,
         programFile: fileUrl,
       };
@@ -233,7 +263,7 @@ export default function AddProgram() {
 
         // Reset form and files
         form.reset();
-        setUploadedImage(null);
+        setUploadedImage([]);
         setUploadedVideo(null);
         setUploadedFile(null);
       } else {
@@ -252,11 +282,14 @@ export default function AddProgram() {
   };
 
   // Remove uploaded files
-  const removeImage = () => {
-    if (uploadedImage) {
-      URL.revokeObjectURL(uploadedImage.preview);
-      setUploadedImage(null);
-    }
+  const removeImage = (itemIndex: number) => {
+    const newImages = uploadedImage?.filter((item, index) => {
+      if (index === itemIndex) {
+        URL.revokeObjectURL(item.preview);
+      }
+      return index !== itemIndex;
+    });
+    setUploadedImage(newImages || []);
   };
 
   const removeVideo = () => {
@@ -301,13 +334,13 @@ export default function AddProgram() {
   }, []);
 
   // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      if (uploadedImage) URL.revokeObjectURL(uploadedImage.preview);
-      if (uploadedVideo) URL.revokeObjectURL(uploadedVideo.preview);
-      if (uploadedFile) URL.revokeObjectURL(uploadedFile.preview);
-    };
-  }, [uploadedImage, uploadedVideo, uploadedFile]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (uploadedImage) URL.revokeObjectURL(uploadedImage.preview);
+  //     if (uploadedVideo) URL.revokeObjectURL(uploadedVideo.preview);
+  //     if (uploadedFile) URL.revokeObjectURL(uploadedFile.preview);
+  //   };
+  // }, [uploadedImage, uploadedVideo, uploadedFile]);
 
   return (
     <>
@@ -416,26 +449,26 @@ export default function AddProgram() {
                     {...getImageRootProps()}
                   >
                     <input {...getImageInputProps()} />
-                    {uploadedImage ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={uploadedImage.preview || "/placeholder.svg"}
-                          alt="Upload preview"
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeImage();
-                          }}
+                    {uploadedImage && uploadedImage.length > 0 ? (
+                      uploadedImage.map((item, index) => (
+                        <div
+                          key={index + 1}
+                          className="grid relative space-x-3"
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                          <X
+                            className="justify-self-end -mt-2 -mr-2 absolute h-4 w-4 rounded-full bg-red-500 text-primary-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage(index);
+                            }}
+                          />
+                          <img
+                            src={item.preview || "/placeholder.svg"}
+                            alt="Upload preview"
+                            className="flex justify-center items-center w-[60px] h-[60px] object-cover rounded-sm border"
+                          />
+                        </div>
+                      ))
                     ) : (
                       <div className="flex flex-col items-center">
                         <Upload className="h-8 w-8 text-gray-400" />

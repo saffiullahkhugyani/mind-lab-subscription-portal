@@ -48,8 +48,8 @@ export default function ModifyProgram() {
   const [allPrograms, setAllPrograms] = useState<Programs[]>([]);
   const [programs, setPrograms] = useState<Programs[]>([]);
   const [isModifying, setIsModifying] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<FileWithPreview | null>(
-    null
+  const [uploadedImage, setUploadedImage] = useState<FileWithPreview[] | null>(
+    []
   );
   const [uploadedVideo, setUploadedVideo] = useState<FileWithPreview | null>(
     null
@@ -74,13 +74,29 @@ export default function ModifyProgram() {
   });
 
   // Image dropzone
-  const onImageDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      const preview = URL.createObjectURL(file);
-      setUploadedImage({ file, preview });
-    }
-  }, []);
+  const onImageDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      acceptedFiles.map((file) => {
+        if (file) {
+          const preview = URL.createObjectURL(file);
+          const newImg = { file, preview };
+          setUploadedImage((prevImage) => {
+            const prevItem = prevImage?.some((item) => {
+              return item.file.name.trim() === newImg.file.name.trim();
+            });
+            if (prevItem) {
+              return [...prevImage!];
+            } else if (uploadedImage !== null) {
+              return [...prevImage!, newImg];
+            } else {
+              return [newImg];
+            }
+          });
+        }
+      });
+    },
+    [uploadedImage]
+  );
 
   const {
     getRootProps: getImageRootProps,
@@ -91,7 +107,7 @@ export default function ModifyProgram() {
     accept: {
       "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
     },
-    maxFiles: 1,
+    maxFiles: 4,
   });
 
   // Video dropzone
@@ -173,17 +189,27 @@ export default function ModifyProgram() {
     setIsModifying(true);
 
     try {
-      let imageUrl = "";
+      let imageUrls: string[] = [];
       let videoUrl = "";
       let fileUrl = "";
 
       // Upload image if present
-      if (uploadedImage) {
-        const url = await uploadFileToSupabase(
-          uploadedImage.file,
-          "program-images"
+      if (uploadedImage && uploadedImage.length > 0) {
+        const urls = await Promise.all(
+          uploadedImage!.map(async (item, index) => {
+            const url = await uploadFileToSupabase(item.file, "program-images");
+            if (url) {
+              imageUrls.push(url);
+              console.log(
+                `This is the url ${url} for the image on index ${index + 1}`
+              );
+              return url;
+            }
+          })
         );
-        if (url) imageUrl = url;
+        imageUrls = urls.filter(
+          (url): url is string => typeof url === "string"
+        );
       }
 
       // Upload video if present
@@ -209,7 +235,7 @@ export default function ModifyProgram() {
         program_id: selectedProgramData?.programId,
         description: values.description,
         start_date: values.startDate,
-        program_picture_url: imageUrl || selectedProgramData?.programImage,
+        program_picture_url: imageUrls || selectedProgramData?.programImage,
         program_video_url: videoUrl || selectedProgramData?.programVideo,
         program_file_url: fileUrl || selectedProgramData?.programFile,
       };
@@ -260,11 +286,14 @@ export default function ModifyProgram() {
   };
 
   // Remove uploaded files
-  const removeImage = () => {
-    if (uploadedImage) {
-      URL.revokeObjectURL(uploadedImage.preview);
-      setUploadedImage(null);
-    }
+  const removeImage = (itemIndex: number) => {
+    const newImages = uploadedImage?.filter((item, index) => {
+      if (index === itemIndex) {
+        URL.revokeObjectURL(item.preview);
+      }
+      return index !== itemIndex;
+    });
+    setUploadedImage(newImages || []);
   };
 
   const removeVideo = () => {
@@ -323,13 +352,13 @@ export default function ModifyProgram() {
   }, []);
 
   // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      if (uploadedImage) URL.revokeObjectURL(uploadedImage.preview);
-      if (uploadedVideo) URL.revokeObjectURL(uploadedVideo.preview);
-      if (uploadedFile) URL.revokeObjectURL(uploadedFile.preview);
-    };
-  }, [uploadedImage, uploadedVideo, uploadedFile]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (uploadedImage) URL.revokeObjectURL(uploadedImage.preview);
+  //     if (uploadedVideo) URL.revokeObjectURL(uploadedVideo.preview);
+  //     if (uploadedFile) URL.revokeObjectURL(uploadedFile.preview);
+  //   };
+  // }, [uploadedImage, uploadedVideo, uploadedFile]);
 
   const clubId = form.watch("clubId");
   const programId = form.watch("programId");
@@ -481,34 +510,46 @@ export default function ModifyProgram() {
                   >
                     <input {...getImageInputProps()} />
 
-                    {uploadedImage ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={uploadedImage.preview || "/placeholder.svg"}
-                          alt="Upload preview"
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeImage();
-                          }}
+                    {uploadedImage && uploadedImage.length ? (
+                      uploadedImage.map((item, index) => (
+                        <div
+                          key={index + 1}
+                          className="grid relative space-x-3"
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                          <X
+                            className="justify-self-end -mt-2 -mr-2 absolute h-4 w-4 rounded-full bg-red-500 text-primary-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage(index);
+                            }}
+                          />
+                          <img
+                            src={item.preview || "/placeholder.svg"}
+                            alt="Upload preview"
+                            className="flex justify-center items-center w-[60px] h-[60px] object-cover rounded-sm border"
+                          />
+                        </div>
+                      ))
                     ) : selectedProgramData?.programImage ? (
-                      <div className="flex items-center space-x-2 text-blue-600">
-                        <img
-                          src={selectedProgramData.programImage}
-                          alt="Current program image"
-                          className="h-full w-full object-cover rounded"
-                        />
-                      </div>
+                      selectedProgramData.programImage.map((item, index) => (
+                        <div
+                          key={index + 1}
+                          className="flex w-full justify-center relative gap-2"
+                        >
+                          {/* <X
+                            className="justify-self-end -mt-2 -mr-2 absolute h-4 w-4 rounded-full bg-red-500 text-primary-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage(index);
+                            }}
+                          /> */}
+                          <img
+                            src={item || "/placeholder.svg"}
+                            alt="Upload preview"
+                            className="flex justify-center items-center w-[60px] h-[60px] object-cover rounded-sm border"
+                          />
+                        </div>
+                      ))
                     ) : (
                       <div className="flex flex-col items-center">
                         <UploadCloud className="h-8 w-8 text-gray-400" />

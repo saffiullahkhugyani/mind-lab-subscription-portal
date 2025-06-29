@@ -34,3 +34,13 @@ export type PlanCancelDataModel = {
   reason?: string | null;
   userId: string;
 };
+
+export type CouponDetailsModel = {
+  couponId?: number | null;
+  couponCode?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  status?: string | null;
+  programName?: string | null;
+  userEmail?: string | null;
+};

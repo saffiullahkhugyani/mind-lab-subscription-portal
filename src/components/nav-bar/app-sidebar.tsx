@@ -7,6 +7,7 @@ import {
   FolderCog,
   User,
   Star,
+  Ticket,
 } from "lucide-react";
 import {
   Sidebar,
@@ -70,6 +71,12 @@ const items = [
     title: "special deal",
     url: "/special-deal",
     icon: Star,
+    items: [],
+  },
+  {
+    title: "Coupon Management",
+    url: "/coupon-management",
+    icon: Ticket,
     items: [],
   },
 ];

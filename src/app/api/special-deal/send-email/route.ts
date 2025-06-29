@@ -18,7 +18,10 @@ export async function POST(req: Request) {
       tags: [{ name: "user_id", value: payload.userId }],
     });
 
-    if (error) return Response.json({ error }, { status: 500 });
+    if (error) {
+      console.log("Error sending email: ", error);
+      return Response.json({ error }, { status: 500 });
+    }
 
     const { data: insertEmailData, error: insertEmailDataError } =
       await supabase
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
       throw new Error(insertEmailDataError.message);
     }
 
-    return Response.json({ data });
+    return Response.json({ success: true, data: data });
   } catch (err: any) {
     return Response.json({ error: err.message }, { status: 400 });
   }

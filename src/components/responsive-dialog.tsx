@@ -35,7 +35,7 @@ export function ResponsiveDialog({
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent className="z-50 overflow-visible">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && (

@@ -52,7 +52,7 @@ export const columns: ColumnDef<any>[] = [
             className={
               status === "Draft"
                 ? "bg-yellow-100 text-yellow-800"
-                : status === "Deactive"
+                : status === "Deactivate"
                   ? "bg-red-100 text-red-800"
                   : "bg-green-100 text-green-800"
             }

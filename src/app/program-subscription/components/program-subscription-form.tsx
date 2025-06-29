@@ -49,7 +49,7 @@ interface ProgramSubscriptionFormProps {
 const subscriptionFormSchema = z.object({
   clubId: z.number().min(1, "Club name is required"),
   programId: z.number().min(1, "Program name is required"),
-  subscriptionType: z.enum(["normal", "promotion", "special price"]),
+  subscriptionType: z.enum(["normal", "promotion", "special deal"]),
   plan1Month: z.coerce.number().min(1, "Price required"),
   plan3Month: z.coerce.number().min(1, "Price required"),
   plan12Month: z.coerce.number().min(1, "Price required"),
@@ -133,7 +133,7 @@ const ProgramSubscriptionForm = ({
     if (overlaps) {
       toast({
         title: "Already exists",
-        description: `${data.subscriptionType}  already exisits for the program `,
+        description: `${data.subscriptionType}  already exists for the program `,
         variant: "warning",
       });
       return;
@@ -346,6 +346,7 @@ const ProgramSubscriptionForm = ({
         );
 
         if (normalSubscription) {
+          console.log("Normal subscription found:", normalSubscription);
           setNormalPrices({
             plan1Month: normalSubscription.planOneMonth!,
             plan3Month: normalSubscription.planThreeMonth!,
@@ -360,9 +361,10 @@ const ProgramSubscriptionForm = ({
 
   useEffect(() => {
     if (
-      subscriptionType === "special price" ||
+      subscriptionType === "special deal" ||
       subscriptionType === "promotion"
     ) {
+      console.log("I am here for calculating discount: ", normalPrices);
       const calculateDiscount = (newPrice: number, normalPrice: number) => {
         if (!newPrice || normalPrice === 0) return 0;
         const newPriceNum = newPrice;

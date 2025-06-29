@@ -19,9 +19,6 @@ export async function GET() {
       .select("*, clubs!inner(club_name)");
 
     if (programError) throw new Error(programError.message);
-
-    console.log(data);
-
     const programs: Programs[] = data!.map((item) => ({
       programId: item.program_id,
       programEnglishName: item.program_english_name,
@@ -40,7 +37,7 @@ export async function GET() {
       description: item.description,
     }));
 
-    return NextResponse.json({ success: true, programs });
+    return NextResponse.json({ success: true, data: programs });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch programs" },

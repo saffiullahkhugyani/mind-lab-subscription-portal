@@ -1252,30 +1252,6 @@ export type Database = {
           },
         ];
       };
-      "special-deal-email-templates": {
-        Row: {
-          created_at: string;
-          email_subject: string | null;
-          id: number;
-          template_content: string | null;
-          template_name: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          email_subject?: string | null;
-          id?: number;
-          template_content?: string | null;
-          template_name?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          email_subject?: string | null;
-          id?: number;
-          template_content?: string | null;
-          template_name?: string | null;
-        };
-        Relationships: [];
-      };
       sponsor: {
         Row: {
           address: string | null;

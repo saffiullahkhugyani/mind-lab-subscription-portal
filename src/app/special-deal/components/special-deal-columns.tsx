@@ -23,14 +23,14 @@ import {
 
 export const SpecialDealColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "userId",
-    header: () => <div className="tet-right">User Id</div>,
+    accessorKey: "sr",
+    header: () => <div className="tet-right">Sr. no</div>,
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("userId")}</div>;
+      return <div className="font-medium">{row.index + 1}</div>;
     },
   },
   {
-    accessorKey: "email",
+    accessorKey: "userEmail",
     header: ({ column }) => (
       <Button
         variant={"ghost"}
@@ -42,11 +42,11 @@ export const SpecialDealColumns: ColumnDef<any>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue("email")}</div>;
+      return <div>{row.getValue("userEmail")}</div>;
     },
   },
   {
-    accessorKey: "currentPlan",
+    accessorKey: "programName",
     header: ({ column }) => (
       <Button
         variant={"ghost"}
@@ -54,30 +54,13 @@ export const SpecialDealColumns: ColumnDef<any>[] = [
         className="-ml-3 h-8 data-[state=open]:bg-accent"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        <span>Current Plan</span> <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+        <span>Program Name</span> <ArrowUpDownIcon className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      return <div>{row.getValue("currentPlan")}</div>;
+      return <div>{row.getValue("programName")}</div>;
     },
   },
-  {
-    accessorKey: "template",
-    header: ({ column }) => (
-      <Button
-        variant={"ghost"}
-        size={"sm"}
-        className="-ml-3 h-8 data-[state=open]:bg-accent"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Template <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      return <div>{row.getValue("template")}</div>;
-    },
-  },
-
   {
     accessorKey: "sendDate",
     header: ({ column }) => (

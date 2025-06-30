@@ -231,32 +231,6 @@ export default function TopProgramsComponent({
           Top Programs
         </h2>
         <div className="flex gap-4">
-          {getTopPrograms?.length === 0 ? (
-            <div className="flex items-center justify-center w-full h-32 bg-gray-100 text-gray-500 rounded-lg">
-              Please select a program to add top programs
-            </div>
-          ) : (
-            getTopPrograms!.map((program, index) => {
-              const IconComponent = Building;
-              return (
-                <Card
-                  key={program.id}
-                  className={`${programs.at(index)?.color} text-white w-40 h-32 border-0`}
-                >
-                  <CardContent className="p-4 flex flex-col justify-between h-full">
-                    <div className="flex justify-between items-start">
-                      <IconComponent className="w-6 h-6" />
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">{program.programName}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Card className="w-40 h-32 border-2 border-dashed border-gray-300 bg-white cursor-pointer hover:bg-gray-50">
@@ -349,6 +323,31 @@ export default function TopProgramsComponent({
               </div>
             </DialogContent>
           </Dialog>
+          {getTopPrograms?.length === 0 ? (
+            <div className="flex items-center justify-center w-full h-32 bg-gray-100 text-gray-500 rounded-lg">
+              Please select a program to add top programs
+            </div>
+          ) : (
+            getTopPrograms!.map((program, index) => {
+              const IconComponent = Building;
+              return (
+                <Card
+                  key={program.id}
+                  className={`${programs.at(index)?.color} text-white w-40 h-32 border-0`}
+                >
+                  <CardContent className="p-4 flex flex-col justify-between h-full">
+                    <div className="flex justify-between items-start">
+                      <IconComponent className="w-6 h-6" />
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{program.programName}</h3>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

@@ -469,8 +469,9 @@ const ProgramSubscriptionForm = ({
                         <SelectTrigger>
                           <SelectValue placeholder="Select a program">
                             {field.value
-                              ? programs.find((p) => p.clubId === clubId)
-                                  ?.programEnglishName
+                              ? programs.find(
+                                  (p) => p.programId === Number(field.value)
+                                )?.programEnglishName
                               : "Please select a program"}
                           </SelectValue>
                         </SelectTrigger>

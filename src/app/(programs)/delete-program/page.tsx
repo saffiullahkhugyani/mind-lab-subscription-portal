@@ -105,8 +105,8 @@ export default function DeleteProgram() {
         const res = await fetch("/api/programs/get");
         const json = await res.json();
         if (json.success) {
-          setAllPrograms(json.programs);
-          setPrograms(json.programs);
+          setAllPrograms(json.data);
+          setPrograms(json.data);
         }
         console.log(json.programs);
       } catch (err) {

@@ -339,8 +339,8 @@ export default function ModifyProgram() {
         const res = await fetch("/api/programs/get");
         const json = await res.json();
         if (json.success) {
-          setAllPrograms(json.programs);
-          setPrograms(json.programs);
+          setAllPrograms(json.data);
+          setPrograms(json.data);
         }
       } catch (err) {
         console.error("Error fetching programs:", err);
@@ -449,7 +449,14 @@ export default function ModifyProgram() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a program" />
+                          <SelectValue placeholder="Select a program">
+                            {" "}
+                            {field.value
+                              ? programs.find(
+                                  (p) => p.programId === Number(field.value)
+                                )?.programEnglishName
+                              : "Please select a program"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

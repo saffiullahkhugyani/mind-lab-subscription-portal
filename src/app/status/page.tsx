@@ -1,4 +1,5 @@
 "use client";
+import PageHeader from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Clubs, Programs } from "@/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +24,8 @@ import { ChevronLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import LoadingSkeleton from "./components/loadingSkeleton";
+import CustomLoader from "@/components/CustomLoader";
 
 const formSchema = z.object({
   clubId: z.number(),
@@ -36,6 +40,7 @@ export default function Status() {
   const [allPrograms, setAllPrograms] = useState<Programs[]>([]);
   const [programs, setPrograms] = useState<Programs[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [fetchingData, setFetchingData] = useState<boolean>(true);
 
   const { toast } = useToast();
 
@@ -52,33 +57,44 @@ export default function Status() {
   const programId = form.watch("programId");
 
   useEffect(() => {
-    // Fetching clubs
-    const fetchClubs = async () => {
+    const fetchData = async () => {
+      setFetchingData(true);
       try {
-        const res = await fetch("/api/clubs/get-clubs");
-        const json = await res.json();
-        if (json.success) setClubs(json.data);
-      } catch (err) {
-        console.error("Error fetching clubs:", err);
-      }
-    };
+        const [clubsRes, programsRes] = await Promise.all([
+          fetch("/api/clubs/get-clubs", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }),
+          fetch("/api/programs/get", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }),
+        ]);
 
-    // Fetching programs
-    const fetchPrograms = async () => {
-      try {
-        const response = await fetch("/api/programs/get");
-        const result = await response.json();
-        if (result.success) {
-          setAllPrograms(result.data);
-          setPrograms(result.data);
+        if (!programsRes.ok || !clubsRes.ok) {
+          console.log("Cannot fetch club and programs");
         }
-      } catch (err) {
-        console.error("Error fetching programs:", err);
+
+        const [clubData, programData] = await Promise.all([
+          clubsRes.json().then((data) => data.data),
+          programsRes.json().then((data) => data.data),
+        ]);
+
+        setClubs(clubData);
+        setPrograms(programData);
+        setAllPrograms(programData);
+      } catch (error) {
+        console.log("Error fetching data: ", error);
+      } finally {
+        setFetchingData(false);
       }
     };
 
-    fetchClubs();
-    fetchPrograms();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -95,28 +111,33 @@ export default function Status() {
         },
         body: JSON.stringify(data),
       });
-      if (!response.ok) {
-        throw new Error("Failed to update program status");
-      }
 
       const result = await response.json();
 
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Successfully updated program status",
-          variant: "success",
-        });
-
-        form.reset();
-      } else {
-        throw new Error(result.message || "Failed to update program status");
+      if (
+        response.status === 401 ||
+        response.status === 403 ||
+        response.status === 404 ||
+        response.status === 500
+      ) {
+        throw new Error(result.error);
       }
-    } catch (error) {
-      console.error("Error updating program status:", error);
+
+      if (response.ok) {
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "Successfully updated program status",
+            variant: "success",
+          });
+
+          form.reset();
+        }
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update program status. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -126,130 +147,131 @@ export default function Status() {
 
   return (
     <>
-      <header className="flex items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-        <div className="py-6 px-4 sm:px-6 lg:px-8">
-          <div className="cursor-pointer">
-            <ChevronLeft />
+      <PageHeader pageTitle="Modify Program Status" />
+      {fetchingData ? (
+        <LoadingSkeleton />
+      ) : (
+        <div className="flex justify-center">
+          <div className="w-full px-4 space-y-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="clubId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Club</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(Number(value))}
+                        value={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a club">
+                              {" "}
+                              {field.value
+                                ? clubs.find((c) => c.clubId === clubId)
+                                    ?.clubName
+                                : "Please select a club"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {clubs.map((club) => (
+                            <SelectItem
+                              value={club.clubId!.toString()}
+                              key={club.clubId}
+                            >
+                              {club.clubName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="programId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Program</FormLabel>
+                      <Select
+                        disabled={!clubId}
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a program">
+                              {field.value
+                                ? programs.find((p) => p.clubId === clubId)
+                                    ?.programEnglishName
+                                : "Please select a program"}
+                            </SelectValue>
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {programs.map((p) => (
+                            <SelectItem
+                              key={p.programId}
+                              value={p.programId!.toString()}
+                            >
+                              {p.programEnglishName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="programStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        disabled={!clubId}
+                        onValueChange={(val) => field.onChange(val)}
+                        value={field.value.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a program status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {programStatus.map((p, index) => (
+                            <SelectItem key={index + 1} value={p}>
+                              {p}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-center pt-4">
+                  <Button disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <CustomLoader className="w-6 h-6 border-white" />
+                    ) : (
+                      "Update status"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-primary">
-            Modify Program Status{" "}
-          </h1>
-        </div>
-      </header>
-      <div className="flex justify-center mb-5 px-4">
-        <div className="w-full max-w-2xl space-y-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="clubId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Club</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a club">
-                            {" "}
-                            {field.value
-                              ? clubs.find((c) => c.clubId === clubId)?.clubName
-                              : "Please select a club"}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {clubs.map((club) => (
-                          <SelectItem
-                            value={club.clubId!.toString()}
-                            key={club.clubId}
-                          >
-                            {club.clubName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="programId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Program</FormLabel>
-                    <Select
-                      disabled={!clubId}
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      value={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a program">
-                            {field.value
-                              ? programs.find((p) => p.clubId === clubId)
-                                  ?.programEnglishName
-                              : "Please select a program"}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {programs.map((p) => (
-                          <SelectItem
-                            key={p.programId}
-                            value={p.programId!.toString()}
-                          >
-                            {p.programEnglishName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="programStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      disabled={!clubId}
-                      onValueChange={(val) => field.onChange(val)}
-                      value={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a program status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {programStatus.map((p, index) => (
-                          <SelectItem key={index + 1} value={p}>
-                            {p}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex justify-center pt-4">
-                <Button>
-                  {isSubmitting ? "Updating..." : "Update status"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      </div>
+      )}
     </>
   );
 }

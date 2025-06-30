@@ -54,8 +54,6 @@ export async function GET() {
       });
     });
 
-    console.log(couponsData);
-
     return NextResponse.json({ success: true, data: couponsData });
   } catch (error) {
     return NextResponse.json(

@@ -8,6 +8,8 @@ import {
   User,
   Star,
   Ticket,
+  PersonStanding,
+  User2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -77,6 +79,12 @@ const items = [
     title: "Coupon Management",
     url: "/coupon-management",
     icon: Ticket,
+    items: [],
+  },
+  {
+    title: "User Logs",
+    url: "/user-logs",
+    icon: User2,
     items: [],
   },
 ];

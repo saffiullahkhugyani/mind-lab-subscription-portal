@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Clubs, Programs } from "@/types/types";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import CustomLoader from "@/components/CustomLoader";
 
 const formSchema = z.object({
   clubId: z.number({ invalid_type_error: "Club is required" }).min(1),
@@ -82,9 +83,10 @@ export default function DeleteProgram() {
           (p) => p.programId !== values.programId
         );
         setPrograms(updatedPrograms);
+        setAllPrograms(updatedPrograms);
 
         // Reset form
-        form.reset({ clubId: 0, programId: 0 });
+        form.reset();
         setSelectedProgramData(null);
       }
     } catch (error: any) {
@@ -167,7 +169,13 @@ export default function DeleteProgram() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a club" />
+                          <SelectValue>
+                            {field.value
+                              ? clubs.find(
+                                  (c) => c.clubId === Number(field.value)
+                                )?.clubName
+                              : "Please select a Club"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -199,7 +207,13 @@ export default function DeleteProgram() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a program" />
+                          <SelectValue placeholder="Select a program">
+                            {field.value
+                              ? programs.find(
+                                  (p) => p.programId === Number(field.value)
+                                )?.programEnglishName
+                              : "Please select a program"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -292,7 +306,11 @@ export default function DeleteProgram() {
                   disabled={isSubmitting}
                   variant="destructive"
                 >
-                  {isSubmitting ? "Deleting..." : "Delete Program"}
+                  {isSubmitting ? (
+                    <CustomLoader className="w-6 h-6 border-white" />
+                  ) : (
+                    "Delete Program"
+                  )}
                 </Button>
               </div>
             </form>

@@ -417,7 +417,14 @@ export default function ModifyProgram() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a club" />
+                          <SelectValue>
+                            {" "}
+                            {field.value
+                              ? clubs.find(
+                                  (c) => c.clubId === Number(field.value)
+                                )?.clubName
+                              : "Please select a Club"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

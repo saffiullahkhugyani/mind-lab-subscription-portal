@@ -38,6 +38,7 @@ import { ProgramSubscriptionModel } from "@/types/custom-types";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { PriceConfirmation } from "./price-comparision";
 import { useRouter } from "next/navigation";
+import CustomLoader from "@/components/CustomLoader";
 
 interface ProgramSubscriptionFormProps {
   fetchedClubs: Clubs[] | null;
@@ -646,9 +647,11 @@ const ProgramSubscriptionForm = ({
                   disabled={isModifying || isPending}
                   onClick={form.handleSubmit(onModify)}
                 >
-                  {isModifying
-                    ? "Modifying Subscription..."
-                    : "Modify Subscription"}
+                  {isModifying ? (
+                    <CustomLoader className="h-6 w-6 border-white" />
+                  ) : (
+                    "Modify Subscription"
+                  )}
                 </Button>
               </div>
             </form>

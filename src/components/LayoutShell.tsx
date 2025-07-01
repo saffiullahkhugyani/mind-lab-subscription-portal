@@ -30,7 +30,7 @@ export default function LayoutShell({ user, children }: LayoutShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarTrigger />
+      {/* <SidebarTrigger /> */}
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );

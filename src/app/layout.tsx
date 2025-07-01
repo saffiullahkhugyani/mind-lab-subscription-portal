@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "../components/nav-bar/app-sidebar";
+import LayoutShell from "@/components/LayoutShell";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -34,6 +35,7 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -43,17 +45,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {user != null ? (
-            <SidebarProvider>
-              <AppSidebar />
-              {/* <SidebarTrigger /> */}
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
-          ) : (
-            <main className="min-h-screen flex flex-col items-center">
-              {children}
-            </main>
-          )}
+          <LayoutShell user={user!} children={children} />
           <Toaster />
         </ThemeProvider>
       </body>

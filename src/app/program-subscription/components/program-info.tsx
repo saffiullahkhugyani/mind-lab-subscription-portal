@@ -67,7 +67,7 @@ const ProgramInfoPanel = ({ programSubscriptionList }: ProgramInfoProps) => {
             />
             <Input
               disabled
-              value={data.planTweleveMonth ?? ""}
+              value={data.planTwelveMonth ?? ""}
               placeholder="12 Month"
             />
           </div>

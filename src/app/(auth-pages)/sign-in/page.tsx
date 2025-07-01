@@ -13,26 +13,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-
-interface LoginProps {
-  searchParams?: Record<string, string> | Message;
-}
 
 // Default empty message
 const emptyMessage: Message = { message: "" };
 
-export default function Login({ searchParams = {} }: LoginProps) {
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  // // Initialize message as undefined if no searchParams exist
-  // const message: Message | undefined =
-  //   "success" in searchParams
-  //     ? { success: searchParams.success }
-  //     : "error" in searchParams
-  //       ? { error: searchParams.error }
-  //       : "message" in searchParams
-  //         ? { message: searchParams.message }
-  //         : emptyMessage;
+
+  const searchParam = useSearchParams();
+
+  const success = searchParam.get("success");
+  const error = searchParam.get("error");
+  const messageParam = searchParam.get("message");
+
+  const message: Message =
+    success !== null
+      ? { success }
+      : error !== null
+        ? { error }
+        : messageParam !== null
+          ? { message: messageParam }
+          : emptyMessage;
+
+  console.log(message);
 
   return (
     <section className="h-[calc(100vh-57px)] flex justify-center items-center">
@@ -80,7 +85,7 @@ export default function Login({ searchParams = {} }: LoginProps) {
               >
                 Sign in
               </SubmitButton>
-              {/* <FormMessage message={message} /> */}
+              <FormMessage message={message} />
             </div>
           </form>
         </CardContent>
